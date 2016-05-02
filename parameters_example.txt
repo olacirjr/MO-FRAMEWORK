@@ -1,7 +1,7 @@
 %Output file name
 outName=test
 %problem: problem name
-problem=dtlz3
+problem=dtlz2
 %leader selection strategy (rnd, cd, sigma, nwsum)
 leader=cd
 %archiver strategy (rnd, cd, ideal, mga, r2, hv)
