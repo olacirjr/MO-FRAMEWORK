@@ -1,0 +1,1217 @@
+#include"trajobjfuns.h"
+#include"trajobjfuns.cpp"
+#include "Astro_Functions.h"  
+#include "Astro_Functions.cpp"  
+#include "mga.h"         
+#include "mga.cpp"          
+#include "time2distance.h"    
+#include "time2distance.cpp"    
+#include "Lambert.h"
+#include "Lambert.cpp"
+#include "mga_dsm.h"      
+#include "mga_dsm.cpp"      
+#include "Pl_Eph_An.h"      
+#include "Pl_Eph_An.cpp"     
+#include "propagateKEP.h"   
+#include "propagateKEP.cpp" 
+#include "misc4Tandem.h"   
+#include "misc4Tandem.cpp"  
+#include "PowSwingByInv.h"  
+#include "PowSwingByInv.cpp" 
+#include "ZeroFinder.h"
+#include "ZeroFinder.cpp" 
+
+#include "asa_tandem/asa_cg.c"
+
+#include "cobyla-local-search/cobyla.c"
+
+
+class Problem{
+public:
+	//constructor
+	//objective number, dimension number
+	//Problem(int On, int Dn);
+
+	//int objectiveNumber; //number of objectives
+	//int decisionNumber; //number of decision variables
+	//double* decisionVector;
+	//double* objectiveVector;
+
+	//swich between the problems implemented and evaluate the solution with the chosen
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void evaluate(double* decisionVector, double* objectiveVector);
+	
+	//function used in the WFG problems
+	//params - the decision vector to be evaluated
+	void calculate_x(double* t);
+
+	//evaluate a solution using the DTLZ1 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateDTLZ1(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the DTLZ2 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateDTLZ2(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the DTLZ3 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateDTLZ3(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the DTLZ4 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateDTLZ4(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the DTLZ5 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateDTLZ5(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the DTLZ6 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateDTLZ6(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the DTLZ7 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateDTLZ7(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the WFG1 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateWFG1(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the WFG2 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateWFG2(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the WFG3 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateWFG3(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the WFG4 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateWFG4(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the WFG5 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateWFG5(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the WFG6 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateWFG6(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the WFG7 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateWFG7(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the WFG8 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateWFG8(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the WFG9 problem
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateWFG9(double* decisionVector, double* objectiveVector);
+	//evaluate a solution using the Tandem function as implemented in  trajobjfuns.cpp
+	//params - the decision vector to be evaluated
+	//		 - the objective vector to hold the evaluation values
+	void calculateTandem(double* decisionVector, double* objectiveVector);
+
+};
+
+
+void printVector(double* vec, int vecSize);
+//constructor initialize the variables
+/*Problem::Problem(int On, int Dn){
+	objectiveNumber=On;
+	decisionNumber=Dn;
+	//decisionVector=solution.decisionVector;
+}*/
+
+//swich between the problems implemented and evaluate the solution with the chosen
+//params - the decision vector to be evaluated
+//		 - the objective vector to hold the evaluation values
+void Problem::evaluate(double* decisionVector, double* objectiveVector){
+	funcEvals++;
+	
+	if(!strcmp(problem, "dtlz1"))
+		calculateDTLZ1(decisionVector, objectiveVector);
+	if(!strcmp(problem, "dtlz2"))
+		calculateDTLZ2(decisionVector, objectiveVector);
+	if(!strcmp(problem, "dtlz3"))
+		calculateDTLZ3(decisionVector, objectiveVector);
+	if(!strcmp(problem, "dtlz4"))
+		calculateDTLZ4(decisionVector, objectiveVector);
+	if(!strcmp(problem, "dtlz5"))
+		calculateDTLZ5(decisionVector, objectiveVector);
+	if(!strcmp(problem, "dtlz6"))
+		calculateDTLZ6(decisionVector, objectiveVector);
+	if(!strcmp(problem, "dtlz7"))
+		calculateDTLZ7(decisionVector, objectiveVector);
+	if(!strcmp(problem, "wfg1"))
+		calculateWFG1(decisionVector, objectiveVector);
+	if(!strcmp(problem, "wfg2"))
+		calculateWFG2(decisionVector, objectiveVector);
+	if(!strcmp(problem, "wfg3"))
+		calculateWFG3(decisionVector, objectiveVector);
+	if(!strcmp(problem, "wfg4"))
+		calculateWFG4(decisionVector, objectiveVector);
+	if(!strcmp(problem, "wfg5"))
+		calculateWFG5(decisionVector, objectiveVector);
+	if(!strcmp(problem, "wfg6"))
+		calculateWFG6(decisionVector, objectiveVector);
+	if(!strcmp(problem, "wfg7"))
+		calculateWFG7(decisionVector, objectiveVector);
+	if(!strcmp(problem, "wfg8"))
+		calculateWFG8(decisionVector, objectiveVector);
+	if(!strcmp(problem, "wfg9"))
+		calculateWFG9(decisionVector, objectiveVector);
+	if(!strncmp(problem, "tandem",6))
+		calculateTandem(decisionVector, objectiveVector);
+	
+	if(strcmp(problem, "dtlz1") && strcmp(problem, "dtlz2") && strcmp(problem, "dtlz3") && strcmp(problem, "dtlz4") && 
+	strcmp(problem, "dtlz5") && strcmp(problem, "dtlz6") && strcmp(problem, "dtlz7") && strcmp(problem, "wfg1") && 
+	strcmp(problem, "wfg2") && strcmp(problem, "wfg3") && strcmp(problem, "wfg4") && strcmp(problem, "wfg5") &&
+	strcmp(problem, "wfg6") && strcmp(problem, "wfg7") && strcmp(problem, "wfg8") && strcmp(problem, "wfg9") && strncmp(problem, "tandem",6) )
+		printf("INVALID OPTIMIZATION PROBLEM! (%s)\n", problem);
+}
+//evaluate a solution using the DTLZ1 problem
+//params - the decision vector to be evaluated
+//		 - the objective vector to hold the evaluation values
+void Problem::calculateDTLZ1(double* decisionVector, double* objectiveVector){
+
+	int k= decisionNumber - objectiveNumber + 1;
+	double g=0.0;
+
+	for(int i=decisionNumber-k;i<decisionNumber;i++)
+		g+=(decisionVector[i]-0.5)*(decisionVector[i]-0.5)-cos(20.0*M_PI*(decisionVector[i]-0.5));
+
+	g=100*(k+g);
+	for(int i=0;i<objectiveNumber;i++)
+		objectiveVector[i] = (1.0+g)*0.5;
+
+	for(int i=0;i<objectiveNumber;i++){
+		for(int j=0;j<objectiveNumber-(i+1);j++)
+			objectiveVector[i] *= decisionVector[j];
+			if(i != 0){
+				int aux = objectiveNumber - (i+1);
+				objectiveVector[i] *= 1-decisionVector[aux] ;
+			}
+	}
+}
+//evaluate a solution using the DTLZ2 problem
+//params - the decision vector to be evaluated
+//		 - the objective vector to hold the evaluation values
+void Problem::calculateDTLZ2(double* decisionVector, double* objectiveVector){
+
+	int k= decisionNumber - objectiveNumber + 1;
+	double g=0.0;
+
+	for(int i=decisionNumber-k;i<decisionNumber;i++)
+		g+=(decisionVector[i]-0.5)*(decisionVector[i]-0.5);
+
+	for(int i=0;i<objectiveNumber;i++)
+		objectiveVector[i] = (1.0+g);
+
+	for(int i=0;i<objectiveNumber;i++){
+		for(int j=0;j<objectiveNumber-(i+1);j++)
+			objectiveVector[i] *= cos(decisionVector[j]*0.5*M_PI);
+			if(i != 0){
+				int aux = objectiveNumber - (i+1);
+				objectiveVector[i] *= sin(decisionVector[aux]*0.5*M_PI);
+			}
+	}
+}
+//evaluate a solution using the DTLZ3 problem
+//params - the decision vector to be evaluated
+//		 - the objective vector to hold the evaluation values
+void Problem::calculateDTLZ3(double* decisionVector, double* objectiveVector){
+
+	int k= decisionNumber - objectiveNumber + 1;
+	double g=0.0;
+
+	for(int i=decisionNumber-k;i<decisionNumber;i++)
+		g+=(decisionVector[i]-0.5)*(decisionVector[i]-0.5)-cos(20.0*M_PI*(decisionVector[i]-0.5));
+
+	g=100.0*(k+g);
+	for(int i=0;i<objectiveNumber;i++)
+		objectiveVector[i] = 1.0+g;
+
+	for(int i=0;i<objectiveNumber;i++){
+		for(int j=0;j<objectiveNumber-(i+1);j++)
+			objectiveVector[i] *= cos(decisionVector[j]*0.5*M_PI);
+			if(i != 0){
+				int aux = objectiveNumber - (i+1);
+				objectiveVector[i] *= sin(decisionVector[aux]*0.5*M_PI);
+			}
+	}
+}
+//evaluate a solution using the DTLZ4 problem
+//params - the decision vector to be evaluated
+//		 - the objective vector to hold the evaluation values
+void Problem::calculateDTLZ4(double* decisionVector, double* objectiveVector){
+
+	int k= decisionNumber - objectiveNumber + 1;
+	double g=0.0;
+	double alpha=100.0;
+
+	for(int i=decisionNumber-k;i<decisionNumber;i++)
+		g+=(decisionVector[i]-0.5)*(decisionVector[i]-0.5);
+
+	for(int i=0;i<objectiveNumber;i++)
+		objectiveVector[i] = (1.0+g);
+
+	for(int i=0;i<objectiveNumber;i++){
+		for(int j=0;j<objectiveNumber-(i+1);j++)
+			objectiveVector[i] *= cos(pow(decisionVector[j],alpha)*(M_PI/2));
+			if(i != 0){
+				int aux = objectiveNumber - (i+1);
+				objectiveVector[i] *= sin(pow(decisionVector[aux],alpha)*(M_PI/2));
+			}
+	}
+}
+//evaluate a solution using the DTLZ5 problem
+//params - the decision vector to be evaluated
+//		 - the objective vector to hold the evaluation values
+void Problem::calculateDTLZ5(double* decisionVector, double* objectiveVector){
+
+	int k= decisionNumber - objectiveNumber + 1;
+	double g=0.0;
+	double theta[maxObjectiveNumber-1];
+
+	for(int i=decisionNumber-k;i<decisionNumber;i++)
+		g+=(decisionVector[i]-0.5)*(decisionVector[i]-0.5);
+
+	double t = M_PI/(4.0*(1.0+g));
+
+	theta[0]=decisionVector[0]*(M_PI/2.0);
+	for(int i=1;i<(objectiveNumber-1);i++)
+		theta[i] = t*(1.0+2.0*g*decisionVector[i]);
+
+	for(int i=0;i<objectiveNumber;i++)
+		objectiveVector[i] = (1.0+g);
+
+	for(int i=0;i<objectiveNumber;i++){
+		for(int j=0;j<objectiveNumber-(i+1);j++)
+			objectiveVector[i] *= cos(theta[j]);
+			if(i != 0){
+				int aux = objectiveNumber - (i+1);
+				objectiveVector[i] *= sin(theta[aux]) ;
+			}
+	}
+}
+//evaluate a solution using the DTLZ6 problem
+//params - the decision vector to be evaluated
+//		 - the objective vector to hold the evaluation values
+void Problem::calculateDTLZ6(double* decisionVector, double* objectiveVector){
+
+	int k= decisionNumber - objectiveNumber + 1;
+	double g=0.0;
+	double theta[maxObjectiveNumber-1];
+
+	for(int i=decisionNumber-k;i<decisionNumber;i++)
+		g+=pow(decisionVector[i],0.1);
+
+	double t = M_PI/(4.0*(1.0+g));
+	theta[0]=decisionVector[0]*(M_PI/2.0);
+	for(int i=1;i<(objectiveNumber-1);i++)
+		theta[i] = t*(1.0+2.0*g*decisionVector[i]);
+
+	for(int i=0;i<objectiveNumber;i++)
+		objectiveVector[i] = (1.0+g);
+
+	for(int i=0;i<objectiveNumber;i++){
+		for(int j=0;j<objectiveNumber-(i+1);j++)
+			objectiveVector[i] *= cos(theta[j]);
+			if(i != 0){
+				int aux = objectiveNumber - (i+1);
+				objectiveVector[i] *= sin(theta[aux]) ;
+			}
+	}
+}
+//evaluate a solution using the DTLZ7 problem
+//params - the decision vector to be evaluated
+//		 - the objective vector to hold the evaluation values
+void Problem::calculateDTLZ7(double* decisionVector, double* objectiveVector){
+	int k= decisionNumber - objectiveNumber + 1;
+	double g=0.0;
+
+	for(int i=decisionNumber-k;i<decisionNumber;i++)
+		g+=decisionVector[i];
+
+	g=1+(9.0*g)/k;
+
+	for(int i=0;i<objectiveNumber-1;i++)
+		objectiveVector[i] = decisionVector[i];
+
+	double h=0.0;
+	for(int i=0;i<objectiveNumber-1;i++)
+		h+=(objectiveVector[i]/(1.0+g))*(1+sin(3.0*M_PI*objectiveVector[i]));
+
+	h=objectiveNumber-h;
+
+	objectiveVector[objectiveNumber-1]=(1+g)*h;
+}
+
+/**************************************************************************************  WFG FUNCTIONS ************************************************************************/
+
+double correct_to_01(double a){
+	double min = (double)0.0;
+	double max = (double)1.0;
+	double epsilon = (double)1e-7;
+
+	double min_epsilon = min - epsilon;
+	double max_epsilon = max + epsilon;
+
+	if (( a <= min && a >= min_epsilon ) || (a >= min && a <= min_epsilon)) {
+		return min;        
+	} else if (( a >= max && a <= max_epsilon ) || (a <= max && a >= max_epsilon)) {
+		return max;        
+	} else {
+		return a;        
+	}
+}
+void normalize(double* decisionVector, double* result){
+	for (int i = 0; i < decisionNumber; i++){
+		double bound = (double)2.0 * (i + 1);
+		result[i] = decisionVector[i] / bound;
+		result[i]=correct_to_01(result[i]);
+	}
+}    
+double s_linear(double y, double A){
+	return correct_to_01(fabs(y - A) /(double)fabs(floor(A - y) + A));
+}
+
+double s_multi(double y, int A, int B, double C){                
+	double tmp1, tmp2;
+		
+	tmp1 = ((double)4.0 * A + (double)2.0) * (double)M_PI * ((double)0.5 - fabs(y - C) / ((double)2.0 * ((double)floor(C - y) + C)));
+	tmp2 = (double)4.0 * B * (double)pow(fabs(y - C) / ((double)2.0 * ((double)floor(C - y) + C)), (double)2.0);
+		
+	return correct_to_01(((double)1.0 + (double)cos(tmp1) + tmp2) / (B + (double)2.0));
+}
+
+double s_decept(double y, double A, double B, double C){        
+	double tmp, tmp1, tmp2;
+		
+	tmp1 = (double)floor(y - A + B) * ((double)1.0 - C + (A - B)/B) / (A - B);
+	tmp2 = (double)floor(A + B - y) * ((double)1.0 - C + ((double)1.0 - A - B) / B) / ((double)1.0 - A - B);
+		
+	tmp = fabs(y - A) - B;
+		
+	return correct_to_01((double)1 + tmp * (tmp1 + tmp2 + (double)1.0/B));
+}
+
+double b_flat(double y, double A, double B, double C){    
+	double tmp1 = std::min((double)0, (double)floor(y - B))* A*(B-y)/B;
+	double tmp2 = std::min((double)0, (double)floor(C - y))* (1 - A)*(y - C)/(1 - C);
+		
+	return correct_to_01(A + tmp1 - tmp2);
+}
+double b_poly(double y, double alpha){
+	if (! ( y>=0 || y<=1 || alpha>0 || alpha != 1 ) )
+		printf("ERROR ON WFG FUNCTION! (b_poly)");
+	
+	return correct_to_01((double)pow(y,alpha));
+}
+double b_param(double y, double u, double A, double B, double C){
+	double result, v, exp;
+		
+	v = A - ((double)1.0 - (double)2.0 * u) * fabs((double)floor((double)0.5 - u) + A);
+	exp = B + (C - B)*v;
+	result = (double)pow(y,exp);
+		
+	return correct_to_01(result);                  
+}
+void subVector(double* z, int head, int tail, double* result){	
+	for( int i = head; i <= tail; i++ ){
+		result[i-head]=z[i];
+	}
+}
+
+double r_sum(double* y, double* w, int length){
+	double tmp1 = (double)0.0, tmp2 =(double) 0.0;
+	for (int i = 0; i < length; i++){
+		tmp1 += y[i]*w[i];
+		tmp2 += w[i];
+	}
+		
+	return correct_to_01(tmp1 / tmp2);
+}
+double r_nonsep(double* y, int A, int size){
+	double tmp, denominator, numerator;
+		
+	tmp = (double)ceil(A/(double)2.0);        
+	denominator = size * tmp * ((double)1.0 + (double)2.0*A - (double)2.0*tmp)/A;        
+	numerator = (double)0.0;
+	for (int j = 0; j < size; j++){
+		numerator += y[j];
+		for (int k = 0; k <= A-2; k++){
+		numerator += fabs( y[j] - y[( j+k+1 ) % size]);
+		}
+	}
+		
+	return correct_to_01(numerator/denominator);
+}
+
+double convex(double* x, int m){
+	double result = (double)1.0;
+		
+	for (int i = 1; i <= objectiveNumber - m; i++)
+		result *= (1 - cos(x[i-1] * M_PI * 0.5));
+					
+	if (m != 1)
+		result *= (1 - sin(x[objectiveNumber - m] * M_PI * 0.5));
+		
+	return result;
+}
+double concave(double* x, int m){
+	double result = (double)1.0;
+		
+	for (int i = 1; i <= objectiveNumber - m; i++)
+		result *= sin(x[i-1] * M_PI * 0.5);
+		
+	if (m != 1)
+		result *= cos(x[objectiveNumber - m] * M_PI * 0.5);
+			
+	return result;
+}
+double linear(double* x, int m){
+	double  result = (double)1.0;        
+
+	for (int i = 1; i <= objectiveNumber - m; i++)
+		result *= x[i-1];
+		
+	if (m != 1)        
+		result *= (1 - x[objectiveNumber - m]);
+				
+	return result;
+}
+
+double mixed(double* x, int A, double alpha){
+	double tmp;        
+	tmp =(double) cos((double)2.0 * A * (double)M_PI * x[0] + (double)M_PI * (double)0.5);
+	tmp /= (2.0 * (double) A * M_PI);
+	return (double)pow(((double)1.0 - x[0] - tmp),alpha);
+}
+
+double disc(double* x, int A, double alpha, double beta){
+	double tmp;
+	tmp = (double)cos((double)A * pow(x[0], beta) * M_PI);
+		
+	return (double)1.0 - (double)pow(x[0],alpha) * (double)pow(tmp,2.0);
+}
+
+void Problem::calculate_x(double* t){
+	double tmp[maxObjectiveNumber];
+	double A[maxObjectiveNumber-1];
+	
+	if(!strcmp(problem, "wfg3")){
+		A[0] = 1;
+		for (int i = 1; i < objectiveNumber-1; i++) 
+			A[i] = 0;
+	}else
+		for (int i = 0; i < objectiveNumber-1; i++)
+			A[i] = 1;
+	
+	
+		
+	for (int i = 0; i < objectiveNumber-1; i++){
+		tmp[i] = std::max(t[objectiveNumber-1],A[i]) * (t[i]  - (double)0.5) + (double)0.5;
+	}
+		
+	tmp[objectiveNumber-1] = t[objectiveNumber-1];
+		
+	memcpy(t, &tmp, sizeof(double)*objectiveNumber);
+}
+
+void WFG1_t1(double* z, int k){
+	double tmp[maxDecisionNumber];
+	
+	memcpy(&tmp, z, sizeof(double)*decisionNumber);
+		
+	for (int i = k; i < decisionNumber; i++) {
+		tmp[i]=s_linear(z[i],0.35);
+	}
+	
+	memcpy(z, &tmp, sizeof(double)*decisionNumber);
+}
+
+void WFG4_t1(double* z){
+	double tmp[maxDecisionNumber];
+	
+	for (int i = 0; i < decisionNumber; i++) {
+		tmp[i] = s_multi(z[i],30,10,(double)0.35);
+	}
+	memcpy(z, &tmp, sizeof(double)*decisionNumber);
+}
+
+void WFG5_t1(double* z){
+	double tmp[maxDecisionNumber];
+	
+	for (int i = 0; i < decisionNumber; i++) {
+		tmp[i] = s_decept(z[i],(double)0.35,(double)0.001,(double)0.05);
+	}
+	memcpy(z, &tmp, sizeof(double)*decisionNumber);
+}
+
+void WFG7_t1(double* z, int k){
+	double tmp[maxDecisionNumber];
+	double w[maxDecisionNumber];
+	double subZ[maxDecisionNumber];
+	double subW[maxDecisionNumber];
+	
+	memcpy(&tmp, z, sizeof(double)*decisionNumber);
+
+	for (int i = 0; i < decisionNumber; i++) {
+		w[i] = (double)1.0;
+	}
+
+	for (int i = 0; i < k; i++){
+		int head = i+1;
+		int tail = decisionNumber-1;
+		subVector(z,head,tail,subZ);
+		subVector(w,head,tail,subW);
+		double aux = r_sum(subZ,subW,(tail-head+1));
+
+		tmp[i] = b_param(z[i],aux,(double)0.98/(double)49.98,(double)0.02,(double)50);
+	}
+	memcpy(z, &tmp, sizeof(double)*decisionNumber);
+}
+
+void WFG8_t1(double* z, int k){
+	double tmp[maxDecisionNumber];
+	double w[maxDecisionNumber];
+	double subZ[maxDecisionNumber];
+	double subW[maxDecisionNumber];
+		
+	for (int i = 0; i < decisionNumber; i++) {
+		w[i] = (double)1.0;
+	}
+
+	memcpy(&tmp, z, sizeof(double)*decisionNumber);
+		
+	for (int i = k; i < decisionNumber; i++){
+		int head = 0;
+		int tail = i - 1;
+		subVector(z,head,tail,subZ);
+		subVector(w,head,tail,subW);            
+		double aux = r_sum(subZ,subW,(tail-head+1));
+			
+		tmp[i] = b_param(z[i],aux,(double)0.98/(double)49.98,(double)0.02,50);
+	}
+		
+	memcpy(z, &tmp, sizeof(double)*decisionNumber);
+}
+
+void WFG9_t1(double* z, int k){
+	double tmp[maxDecisionNumber];
+	double w[maxDecisionNumber];
+	double subZ[maxDecisionNumber];
+	double subW[maxDecisionNumber];
+		
+	for (int i = 0; i < decisionNumber; i++) {
+		w[i] = (double)1.0;
+	}
+
+	memcpy(&tmp, z, sizeof(double)*decisionNumber);
+		
+	for (int i = 0; i < decisionNumber-1; i++){
+      int head = i+1;
+      int tail = decisionNumber-1;
+      subVector(z,head,tail, subZ);
+      subVector(w,head,tail,subW);
+      double aux = r_sum(subZ,subW,(tail-head+1));
+      tmp[i] = b_param(z[i],aux,(double)0.98/(double)49.98,(double)0.02,(double)50);
+    }
+        
+    tmp[decisionNumber-1] = z[decisionNumber-1];
+		
+	memcpy(z, &tmp, sizeof(double)*decisionNumber);
+}
+
+void WFG1_t2(double* z, int k){
+	double tmp[maxDecisionNumber];
+
+	memcpy(&tmp, z, sizeof(double)*decisionNumber);
+		
+	for (int i = k; i < decisionNumber; i++) {
+		tmp[i]=b_flat(z[i],(double)0.8,(double)0.75,(double)0.85);
+	}
+		
+	memcpy(z, &tmp, sizeof(double)*decisionNumber);
+}
+
+void WFG2_t2(double* z, int k){
+	double tmp[maxDecisionNumber];
+	double subZ[maxDecisionNumber];
+	memcpy(&tmp, z, sizeof(double)*decisionNumber);
+	
+	int l = decisionNumber - k;
+		
+	for (int i = k+1; i <= k + l/2; i++){
+		int head = k + 2*(i - k) - 1;
+		int tail = k + 2*(i - k);              
+		subVector(z,head-1,tail-1,subZ);
+		
+		tmp[i-1] = r_nonsep(subZ,2,(tail-head+1) );
+	}
+	memcpy(z, &tmp, sizeof(double)*decisionNumber);
+}
+
+void WFG4_t2(double* z, int k){
+	double tmp[maxObjectiveNumber];
+	double w[maxDecisionNumber];
+	double subZ[maxDecisionNumber];
+	double subW[maxDecisionNumber];
+
+	for (int i = 0; i < decisionNumber; i++) {
+		w[i] = (double)1.0;
+	}
+			
+	for (int i = 1; i <= objectiveNumber-1; i++) {
+		int head = (i - 1)*k/(objectiveNumber-1) + 1;
+		int tail = i * k / (objectiveNumber - 1);
+		subVector(z,head-1,tail-1,subZ);
+		subVector(w,head-1,tail-1,subW);
+		
+		tmp[i-1] = r_sum(subZ,subW,(tail-head+1));
+	}
+		
+	int head = k + 1;
+	int tail = decisionNumber;
+		
+	subVector(z,head-1,tail-1,subZ);
+	subVector(w,head-1,tail-1,subW);
+	tmp[objectiveNumber-1] = r_sum(subZ,subW,(tail-head+1));
+		
+	memcpy(z, &tmp, sizeof(double)*objectiveNumber);
+}
+
+void WFG6_t2(double* z, int k){
+	double tmp[maxObjectiveNumber];
+	double subZ[maxDecisionNumber];
+		
+	for (int i = 1; i <= objectiveNumber-1; i++){
+		int head = (i - 1)*k/(objectiveNumber-1) + 1;
+		int tail = i * k / (objectiveNumber - 1);
+		subVector(z,head-1,tail-1, subZ);            
+			
+		tmp[i-1] = r_nonsep(subZ,k/(objectiveNumber-1),(tail-head+1));            
+	}
+		
+	int head = k + 1;
+	int tail = decisionNumber;
+	int l = decisionNumber - k;
+			
+	subVector(z,head-1,tail-1, subZ);              
+	tmp[objectiveNumber-1] = r_nonsep(subZ,l,(tail-head+1));
+				
+	memcpy(z, &tmp, sizeof(double)*objectiveNumber);
+}
+
+void WFG9_t2(double* z, int k){
+	double tmp[maxDecisionNumber];
+		
+	for (int i = 0; i < k; i++) {
+		tmp[i] = s_decept(z[i],(double)0.35,(double)0.001,(double)0.05);
+	}
+		
+	for (int i = k; i < decisionNumber; i++) {
+		tmp[i] = s_multi(z[i],30,95,(double)0.35);
+	}        
+
+	memcpy(z, &tmp, sizeof(double)*decisionNumber);
+}
+
+void WFG1_t3(double* z){
+	double tmp[maxDecisionNumber];
+		
+	for (int i = 0; i < decisionNumber; i++) {
+		tmp[i]=b_poly(z[i],(double)0.02);
+	}
+		
+	memcpy(z, &tmp, sizeof(double)*decisionNumber);
+}
+
+void WFG2_t3(double* z, int k){
+	double tmp[maxObjectiveNumber];
+	double w[maxDecisionNumber];
+	
+	double subZ[maxDecisionNumber];
+	double subW[maxDecisionNumber];
+
+	for (int i = 0; i < decisionNumber; i++) {
+		w[i] = (double)1.0;
+	}
+		
+	for (int i = 1; i <= objectiveNumber-1; i++){
+		int head = (i - 1)*k/(objectiveNumber-1) + 1;
+		int tail = i * k / (objectiveNumber - 1);
+		subVector(z,head-1,tail-1,subZ);
+		subVector(w,head-1,tail-1,subW);
+		
+		tmp[i-1] = r_sum(subZ,subW,(tail-head+1));
+	}
+		
+	int l = decisionNumber - k;
+	int head = k + 1;
+	int tail = k + l / 2;
+	subVector(z,head-1,tail-1, subZ);
+	subVector(w,head-1,tail-1, subW);
+
+	tmp[objectiveNumber-1] = r_sum(subZ,subW,(tail-head+1));
+				
+	memcpy(z, &tmp, sizeof(double)*objectiveNumber);
+}
+
+void WFG7_t3(double* z, int k){
+	double tmp[maxObjectiveNumber];
+	double w[maxDecisionNumber];
+	double subZ[maxDecisionNumber];
+	double subW[maxDecisionNumber];
+		
+	for (int i = 0; i < decisionNumber; i++) {
+		w[i] = (double)1.0;
+	}
+		
+	for (int i = 1; i <= objectiveNumber-1; i++){
+		int head = (i - 1)*k/(objectiveNumber-1) + 1;
+		int tail = i * k / (objectiveNumber - 1);
+		subVector(z,head-1,tail-1, subZ);
+		subVector(w,head-1,tail-1, subW);
+			
+		tmp[i-1] = r_sum(subZ,subW,(tail-head+1));
+	}
+		
+	int head = k + 1;
+	int tail = decisionNumber;
+	subVector(z,head-1,tail-1, subZ);
+	subVector(w,head-1,tail-1, subW);
+	tmp[objectiveNumber-1] = r_sum(subZ,subW,(tail-head+1));
+
+	memcpy(z, &tmp, sizeof(double)*objectiveNumber);
+}
+
+void WFG1_t4(double* z, int k){
+	double tmp[maxObjectiveNumber];	
+	double w[maxDecisionNumber];
+	double subZ[maxDecisionNumber];
+	double subW[maxDecisionNumber];
+				
+	for (int i = 0; i < decisionNumber; i++) {
+		w[i] = (double)2.0 * (i + 1);
+	}
+		
+	for (int i = 1; i <= objectiveNumber-1; i++){
+		int head = (i - 1)*k/(objectiveNumber-1) + 1;
+		int tail = i * k / (objectiveNumber - 1);
+		
+		subVector(z,head-1,tail-1,subZ);
+		subVector(w,head-1,tail-1,subW);		
+		
+		tmp[i-1]=r_sum(subZ,subW,(tail-head+1));
+	}
+		
+	int head = k + 1 - 1;
+	int tail = decisionNumber - 1;    
+	
+	subVector(z,head,tail,subZ);
+	subVector(w,head,tail,subW);
+	
+	tmp[objectiveNumber-1]=r_sum(subZ,subW,(tail-head+1));
+	
+	memcpy(z, &tmp, sizeof(double)*objectiveNumber);
+}
+// bool vectorIn01(double* x){
+// 	for( int i = 0; i < decisionNumber; i++ ){
+// 		if( x[i] < 0.0 || x[i] > 1.0 ){
+// 			return false;
+// 		}
+// 	}
+// 
+//   return true;
+// }
+
+void Problem::calculateWFG1(double* decisionVector, double* objectiveVector){
+	double y[maxDecisionNumber];
+	int k=4;
+	if(objectiveNumber > 2)
+		k=2*(objectiveNumber-1);
+
+	normalize(decisionVector, y);	
+	WFG1_t1(y,k);
+	WFG1_t2(y,k);	
+	WFG1_t3(y);
+	WFG1_t4(y,k);
+	
+	calculate_x(y);
+	
+	for (int m = 1; m <= objectiveNumber - 1 ; m++) {
+		objectiveVector[m-1] = y[objectiveNumber-1] + superiorPositionLimit[m-1] * convex(y,m);
+	}
+	objectiveVector[objectiveNumber-1] = y[objectiveNumber-1] + superiorPositionLimit[objectiveNumber-1] * mixed(y,5,(double)1.0);
+}
+
+void Problem::calculateWFG2(double* decisionVector, double* objectiveVector){
+	double y[maxDecisionNumber];
+	int k=4;
+	if(objectiveNumber > 2)
+		k=2*(objectiveNumber-1);
+	
+	normalize(decisionVector, y);
+	WFG1_t1(y,k); // = wfg2_t1
+	WFG2_t2(y,k);
+	WFG2_t3(y,k);
+		
+	for (int m = 1; m <= objectiveNumber - 1 ; m++) {
+		objectiveVector[m-1] = y[objectiveNumber-1] + superiorPositionLimit[m-1] * convex(y,m);
+	}        
+	objectiveVector[objectiveNumber-1] = y[objectiveNumber-1] + superiorPositionLimit[objectiveNumber-1] * disc(y,5,(double)1.0,(double)1.0);
+}
+
+void Problem::calculateWFG3(double* decisionVector, double* objectiveVector){
+	double y[maxDecisionNumber];
+	int k=4;
+	if(objectiveNumber > 2)
+		k=2*(objectiveNumber-1);	
+	
+	normalize(decisionVector, y);
+	WFG1_t1(y,k); //=wfg3_t1
+	WFG2_t2(y,k); //=wfg3_t2
+	WFG2_t3(y,k); //=wfg3_t3
+
+	calculate_x(y);        
+	for (int m = 1; m <= objectiveNumber ; m++) {
+		objectiveVector [m-1] = y[objectiveNumber-1] + superiorPositionLimit[m-1] * linear(y,m);
+	}
+}
+void Problem::calculateWFG4(double* decisionVector, double* objectiveVector){
+	double y[maxDecisionNumber];
+	int k=4;
+	if(objectiveNumber > 2)
+		k=2*(objectiveNumber-1);
+	
+	normalize(decisionVector, y);
+	WFG4_t1(y);
+	WFG4_t2(y,k);
+
+	calculate_x(y);
+	for (int m = 1; m <= objectiveNumber ; m++) {
+		objectiveVector [m-1] = y[objectiveNumber-1] + superiorPositionLimit[m-1] * concave(y,m);
+	}
+}
+
+void Problem::calculateWFG5(double* decisionVector, double* objectiveVector){
+	double y[maxDecisionNumber];
+	int k=4;
+	if(objectiveNumber > 2)
+		k=2*(objectiveNumber-1);
+	
+	normalize(decisionVector, y);
+	WFG5_t1(y);
+	WFG4_t2(y,k); //=wfg5_t2
+		
+	calculate_x(y);
+	for (int m = 1; m <= objectiveNumber ; m++) {
+		objectiveVector [m-1] = y[objectiveNumber-1] + superiorPositionLimit[m-1] * concave(y,m);
+	}
+}
+void Problem::calculateWFG6(double* decisionVector, double* objectiveVector){
+	double y[maxDecisionNumber];
+	int k=4;
+	if(objectiveNumber > 2)
+		k=2*(objectiveNumber-1);
+	
+	normalize(decisionVector, y);
+	WFG1_t1(y,k); //=wfg6_t1
+	WFG6_t2(y,k);
+
+	calculate_x(y);
+	for (int m = 1; m <= objectiveNumber ; m++) {
+		objectiveVector[m-1] = y[objectiveNumber-1] + superiorPositionLimit[m-1] * concave(y,m);
+	}
+}
+
+void Problem::calculateWFG7(double* decisionVector, double* objectiveVector){
+	double y[maxDecisionNumber];
+	int k=4;
+	if(objectiveNumber > 2)
+		k=2*(objectiveNumber-1);
+	
+	normalize(decisionVector, y);
+	
+	WFG7_t1(y,k);
+	WFG1_t1(y,k); //=wfg7_t2
+	WFG7_t3(y,k);
+		
+	calculate_x(y);
+	
+	for (int m = 1; m <= objectiveNumber ; m++) {
+		objectiveVector[m-1] = y[objectiveNumber-1] + superiorPositionLimit[m-1] * concave(y,m);
+	}
+}
+void Problem::calculateWFG8(double* decisionVector, double* objectiveVector){
+	double y[maxDecisionNumber];
+	int k=4;
+	if(objectiveNumber > 2)
+		k=2*(objectiveNumber-1);
+	
+	normalize(decisionVector, y);
+	WFG8_t1(y,k);
+	WFG1_t1(y,k); //=wfg8_t2
+	WFG4_t2(y,k); //=wfg8_t3
+		
+	calculate_x(y);        
+	for (int m = 1; m <= objectiveNumber ; m++) {
+		objectiveVector [m-1] = y[objectiveNumber-1] + superiorPositionLimit[m-1] * concave(y,m);                
+	}        
+}
+
+void Problem::calculateWFG9(double* decisionVector, double* objectiveVector){
+	double y[maxDecisionNumber];
+	int k=4;
+	if(objectiveNumber > 2)
+		k=2*(objectiveNumber-1);
+	
+	normalize(decisionVector, y);
+	WFG9_t1(y,k);
+	WFG9_t2(y,k);
+	WFG6_t2(y,k); //=wfg9_t3
+			
+	calculate_x(y);        
+	for (int m = 1; m <= objectiveNumber ; m++) {
+		objectiveVector [m-1] = y[objectiveNumber-1] + superiorPositionLimit[m-1] * concave(y,m);                
+	}        
+}
+
+// double thefunct(double* x){
+// 	double f,obj_f ;
+// 	ConvertFromCont(x);
+// 	MGA_DSM(t, dim, sequence, c_o, rp, e, Isp, mass, AUdist, DVtotal, DVonboard, obj_f, Delta_V);	
+// 	f=obj_f ;
+// 	
+// 	return (f) ;
+// }
+double myvalue(asa_objective *asa){/* evaluate the objective function */
+	double f, t,objf ;
+	double* x;
+	
+	int i, n ;
+	x = asa->x ;
+	n = asa->n ;
+	
+	// 	f = thefunct(x);
+	
+	std::vector<double> X;
+	double tof;
+	for (int i = 0; i < n; i++)
+		X.push_back(x[i]);
+// 	f=tandem(X,tof,seq); 
+	f=2000-tandem(X,tof,seq); 
+	
+	return (f) ;
+}
+void mygrad(asa_objective *asa){/* evaluate the gradient of the objective function */
+	double tt, *g, *x ;
+	int i, n ;
+	x = asa->x ;
+	g = asa->g ;
+	n = asa->n ;
+	for (i = 0; i < n; i++){
+		tt = i + 1 ;
+		tt = sqrt (tt) ;
+		//g[i] = exp(x[i]) -  tt ;
+// 		g[i] = 0; //myrand();
+// 		g[i] = (rand()/(double)RAND_MAX); //myrand();
+		g[i] = 1; //myrand();
+
+	}
+// 	g[randomint(n)]=1;
+// 	g[rand()%n]=1;
+	return ;
+}
+int calcfc(int n, int m, double *x, double *f, double *con, void *state_){
+	double obj_f ;
+	int i;
+	
+	/* Parameter adjustments */
+	--con;
+	--x;
+	for(i=0;i<n;i++)
+	{
+		con[i+1] = x[i+1]- inferiorPositionLimit[i];
+		con[n+i+1] =  superiorPositionLimit[i]- x[i+1];
+	}
+	x++;
+// 	ConvertFromContA(x+1);
+// 	MGA_DSM(t, dim, sequence, c_o, rp, e, Isp, mass, AUdist, DVtotal, DVonboard, obj_f, Delta_V);
+
+	std::vector<double> X;
+	bool violate=false;
+	for (int i = 0; i < n; i++){
+		if(x[i] > superiorPositionLimit[i]){
+// 			printf("\t\t\tVariable %d (%f) is larger than %f\n", i, x[i], superiorPositionLimit[i]);
+			// 			x[i]=superiorPositionLimit[i];
+			violate=true;
+		}
+		if(x[i] < inferiorPositionLimit[i]){
+// 			printf("\t\t\tVariable %d (%f) is smaller than %f\n", i, x[i], inferiorPositionLimit[i]);
+			// 			x[i]=inferiorPositionLimit[i];
+			violate=true;
+		}
+		
+		X.push_back(x[i]);
+	}
+	
+	double tof;
+	if(!violate){
+		double obj=tandem(X,tof,seq);
+		obj_f=2000-obj;
+// 		obj_f=obj;
+	}else
+		obj_f = 4000;
+	
+// 	printf("\ndec_during: (%f) ", obj_f);
+// 	printVector(x, decisionNumber);
+// 	
+// 	printf("\nmin: (%f) ", obj_f);
+// 	printVector(inferiorPositionLimit, decisionNumber);
+// 	
+// 	printf("\nmax: (%f) ", obj_f);
+// 	printVector(superiorPositionLimit, decisionNumber);
+
+	if (isnan(obj_f)) obj_f = 1000000.0;
+	*f=obj_f ;
+	// cout<<setprecision(10)<<endl<<" eval  = " << obj_f<<endl;
+	return 0;
+} /* calcfc */
+typedef struct {
+	int nprob;
+} example_state;
+void Problem::calculateTandem(double* decisionVector, double* objectiveVector){
+	int i;
+	double tof,obj;         
+	//double sol[] = {8614.67190542681782972068, 3.23881168881835801443, 0.49828711089951693847, 0.55247385652360181396, 2323.11617248155198467430, 1911.28129676196658692788, 2104.75935736787505447865, 2499.99977990785100701032, 0.90606524729349469105, 0.83398203560248784783, 0.77167564570127900048, 0.18281414705776333207, 1.41932189054689850138, 1.46704208497941945843, 1.05000000000010906831, -1.24053864588253404122, -1.62734953864368758758, -1.25424110003836464244};
+	
+	//**********************************************************************************************************************//
+	
+	asacg_parm cgParm ;
+	asa_parm asaParm ;
+	asa_cg_default (&cgParm) ;
+	asa_default (&asaParm) ;
+	cgParm.PrintParms = FALSE ;
+	cgParm.PrintLevel = 0 ;
+	
+	asaParm.PrintParms = FALSE ;
+	asaParm.PrintLevel = 0 ;
+	asaParm.PrintFinal = FALSE;
+
+// 	std::vector<double> aa;
+// 	for (int i = 0; i < decisionNumber; i++){aa.push_back(decisionVector[i]);}
+// 	double objB = tandem(aa,tof,seq); 
+// 	printf("\n\ndec_bef: (%5.8f)", objB);
+// 	printVector(decisionVector, decisionNumber);
+// 	
+// 	asa_cg(decisionVector, inferiorPositionLimit, superiorPositionLimit, decisionNumber, NULL, &cgParm, &asaParm, 1.e-8, myvalue, mygrad, NULL, NULL) ;
+// 	
+// 	std::vector<double> ab;
+// 	for (int i = 0; i < decisionNumber; i++){ab.push_back(decisionVector[i]);}
+// 	double objA = tandem(ab,tof,seq); 
+// 	printf("\ndec_aft: (%5.8f)", objA);
+// 	printVector(decisionVector, decisionNumber);
+// 	if(objB < objA)
+// 		printf("\nImproved (%5.8f)", objB - objA);
+// 	if(objB > objA)
+// 		printf("\nWorsen (%5.8f)",objB - objA);
+// 	if(objB == objA)
+// 		printf("\nEqual (%5.8f)",objB - objA);
+// 	
+// 	printf("\n\n");
+	
+	//**********************************************************************************************************************//
+	//rc = cobyla(vars, 2*vars, TheBestsol, rhobeg, rhoend, iprint, &maxfun, calcfc, &state);
+	double  rhobeg = 0.5, rhoend = 0.01;
+	int iprint=0, maxfun = 1000;
+	example_state state;
+	state.nprob = 0;
+	
+	std::vector<double> aa;
+	for (int i = 0; i < decisionNumber; i++){aa.push_back(decisionVector[i]);}
+	double objB = tandem(aa,tof,seq); 
+	printf("\n\ndec_bef: (%5.8f)", objB);
+	printVector(decisionVector, decisionNumber);
+	
+	
+	int rc = cobyla(decisionNumber, 2*decisionNumber, decisionVector, rhobeg, rhoend, iprint, &maxfun, calcfc, &state);
+	if(rc != 0 && rc != 1)
+		printf("Cobyla error: %d\n", rc);
+	
+	std::vector<double> ab;
+	for (int i = 0; i < decisionNumber; i++){ab.push_back(decisionVector[i]);}
+	double objA = tandem(ab,tof,seq); 
+	printf("\ndec_aft: (%5.8f)", objA);
+	printVector(decisionVector, decisionNumber);
+	if(objB < objA)
+		printf("\nImproved (%5.8f)", objB - objA);
+	if(objB > objA)
+		printf("\nWorsen (%5.8f)",objB - objA);
+	if(objB == objA)
+		printf("\nEqual (%5.8f)",objB - objA);
+	
+	printf("\n\n");
+	
+	//**********************************************************************************************************************//
+	
+	
+	
+	//Casting the array to a vector
+	std::vector<double> X;
+	for (int i = 0; i < decisionNumber; i++){
+// 		decisionVector[i] = sol[i];  
+		//X.push_back(sol[i]);          
+		X.push_back(decisionVector[i]);
+		
+		//      X.push_back(sol[i]);
+	}
+	
+	obj = tandem(X,tof,seq); 
+	// 	if(obj==obj)  objectiveVector[0] = -1*obj;
+	// 	else  objectiveVector[0] = 1000000.0;
+	
+	//objectiveVector[0]=-1*obj; //(best: 1673.88)
+	objectiveVector[0]=2000-obj;
+	objectiveVector[1] = tof; 
+	
+// 	if(obj > 1673.88){
+// 		printf("\n Broke record: ");
+// 		printVector(objectiveVector, objectiveNumber);
+// 		printf(" --> ");
+// 		printVector(decisionVector, decisionNumber);
+// 		printf("\n");
+// 	}
+	
+	if(objectiveVector[0] != objectiveVector[0]){
+		printf("\nError: obj0 = %f\n", objectiveVector[0]);
+		printVector(objectiveVector, objectiveNumber);
+		printf(" --> ");
+		printVector(decisionVector, decisionNumber);
+		printf("\n");
+		// 		exit(1);
+		objectiveVector[0]=4000;
+	}
+	
+	if(objectiveVector[1] != objectiveVector[1]){
+		printf("\nError: obj1 = %f\n", objectiveVector[1]);
+		printVector(objectiveVector, objectiveNumber);
+		printf(" --> ");
+		printVector(decisionVector, decisionNumber);
+		printf("\n");
+		// 		exit(1);
+		objectiveVector[1]=2000;
+	}
+	
+	if(objectiveVector[0]<0){
+		printf("Vals (%6.24f %f %f)\n",objectiveVector[0],log(objectiveVector[0]),objectiveVector[1]);
+		for (i = 0; i < decisionNumber; i++)  printf("%f ",decisionVector[i]);
+		printf("\n ");
+	}
+}

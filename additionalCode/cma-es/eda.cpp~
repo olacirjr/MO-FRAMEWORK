@@ -1,0 +1,1750 @@
+//#include <stddef.h> /* NULL */
+#include "cmaes.c"
+
+double * learn( cmaes_t *t);
+double * const * sample(cmaes_t *t);
+
+void myLearn(Swarm &sw);
+
+void activeLearn(Swarm &sw);
+void activeLearn2(Swarm &sw);
+
+void mySample (Swarm &sw);
+
+double cmaes_random_Gauss();
+static void QLalgo2 (int n, double *d, double *e, double V[][maxDecisionNumber]);
+static void Householder2(int n, double V[][maxDecisionNumber], double *d, double *e);
+static void Eigen( int N,  double C[][maxDecisionNumber], double *diag, double Q[][maxDecisionNumber], double *rgtmp);
+
+static bool logCMAES=true;
+
+void cma_es(Swarm &sw, int swarm_edaSize, bool init){
+	int lambda=sw.repository.getActualSize();
+	int N=decisionNumber;
+
+/* the optimization loop */
+//int main(int argn, char **args) {
+// 	cmaes_t evo; /* an CMA-ES type struct or "object" */
+	//double *arFunvals, *const*pop, *xfinal;
+	
+	/* Initialize everything into the struct evo, 0 means default */
+// 	cmaes_init(cmaes_t *t, int dimension, double *inxstart, double *inrgstddev, long int inseed, int lambda, const char *input_parameter_filename) {	
+// 	  cmaes_init(&evo, N, NULL, NULL, 0, lambda, "cma-es/cmaes_initials.par");
+	//evo.sp.mu=lambda; //number of solutions to be learned from
+	//cmaes_readpara_SetWeights(&evo.sp, evo.sp.weigkey);
+		
+// // 	if(lambda>=50){
+// // 		printf("\n");
+// // 		printf("\ndecisionVar: %d", evo.sp.N);
+// // 		printf("\nlambda: %d\n", evo.sp.lambda);
+// // 	}
+	
+	//printf("\n%s\n", cmaes_SayHello(&evo));
+	//cmaes_ReadSignals(&evo, "cmaes_signals.par");  /* write header and initial values */
+	
+	/* Iterate until stop criterion holds */
+	//while(!cmaes_TestForTermination(&evo)){
+		/* generate lambda new search points, sample population */
+		
+// 		double max[N];
+// 		double min[N];
+// 		for(int i=0;i<N;i++){
+// 			max[i]=MAXDOUBLE*-1;
+// 			min[i]=MAXDOUBLE;
+// 		}
+// 		
+// 		for(int i=0;i<lambda;i++){
+// 			for(int d=0;d<N;d++){
+// 				max[d]=std::max(max[d],sw.repository.getSolution(i).decisionVector[d]);
+// 				min[d]=std::min(min[d],sw.repository.getSolution(i).decisionVector[d]);
+// 			}
+// 		}
+		
+		//pop = sample(&evo); /* do not change content of pop */
+//  		sample(&evo); 
+//  		++evo.gen;
+// 		evo.gen=sw.gen;
+		
+		
+// 		if(!init){
+// 			evo.sigma=sw.sigma;
+// 			for(int i=0;i<N;i++){
+// 				for(int j=0;j<N;j++){
+// // 					evo.C[i][j]=sw.C[i][j];
+// 					evo.B[i][j]=sw.B[i][j];
+// 				}
+// 				evo.rgpc[i]=sw.pC[i];
+// 				evo.rgps[i]=sw.pSigma[i];
+// 				evo.rgxmean[i]=sw.mean[i];
+// 				evo.rgD[i]=sw.D[i];
+// 			}
+// 		}
+		
+		
+// // 		evo.state = 1; 
+// 		evo.sp.diagonalCov=0;
+ 		
+		//printf("\n");
+// 		for(int i=0; i<lambda;i++) //copy the solutions to cma-es
+// 			for(int j=0;j<decisionNumber;j++)
+// 				//evo.rgrgx[i][j]=normalize(sw.repository.getSolution(i).decisionVector[j],min[j],max[j]);
+// 				evo.rgrgx[i][j]=sw.repository.getSolution(i).decisionVector[j];
+		
+// // // 		if(lambda>=50){
+// 			printf("population before\n");
+// 			for(int i=0; i<lambda;i++){
+// // 				for(int j=0;j<N;j++)
+// // 					evo.rgrgx[i][j]=0.3;
+// 				
+// 				printVector(evo.rgrgx[i],N);
+// 				printf("\n");
+// 			}
+// // // 		}
+// 		printf("\n-------------------------\n");
+		
+		/* Here we may resample each solution point pop[i] until it
+		 *	 	 becomes feasible. function is_feasible(...) needs to be
+		 *	 	 user-defined.
+		 *	 	 Assumptions: the feasible domain is convex, the optimum is
+		 *	 	 not on (or very close to) the domain boundary, initialX is
+		 *	 	 feasible and initialStandardDeviations are sufficiently small
+		 *	 	 to prevent quasi-infinite looping. */
+		/* for (i = 0; i < cmaes_Get(&evo, "popsize"); ++i)
+		 *           while (!is_feasible(pop[i]))
+		 *             cmaes_ReSampleSingle(&evo, i);
+		 */
+		
+// 		/* evaluate the new search points using fitfun */
+// 		for (int i = 0; i < cmaes_Get(&evo, "lambda"); ++i) {
+// 			arFunvals[i] = fitfun(pop[i], (int) cmaes_Get(&evo, "dim"));
+// 		}
+
+// // // 		if(lambda>=50){
+// // // 			printf("\nCov Mat before\n");
+// // // 			for(int i=0; i<N;i++){
+// // // 				printVector(evo.C[i],N);
+// // // 				//printVector(evo.B[i],N);
+// // // 				printf("\n");
+// // // 			}
+// // // 			printf("\n\n");
+// // // 		}
+
+		/* update the search distribution used for cmaes_SamplePopulation() */
+// // 		double centroid[N];
+// // 		for(int j=0;j<N;j++)
+// // 			centroid[j]=normalize(sw.centroid[j],min[j],max[j]);
+
+// 		for(int i=0;i<500;i++)
+// 			printf("%f\n", cmaes_random_Gauss(&evo.rand));
+// 		exit(1);
+
+		if(logCMAES){
+			printf("\n--------------------------------------------------------------\n");
+			printf("Repository\n");
+			for(int i=0;i<sw.repository.getActualSize();i++){
+				printVector(sw.repository.getSolution(i).decisionVector, N);
+				printf("\n");
+			}
+		}
+		
+		double sigmaPrev=sw.sigma;
+		myLearn(sw);
+// 		activeLearn(sw); //following all the equations from the active learn paper (bad results)
+// 		activeLearn2(sw);
+		
+// 		learn(&evo);
+		
+// // // 		if(lambda>=50){
+// // // 			printf("\nCov Mat after\n");
+// // // 			for(int i=0; i<N;i++){
+// // // 				printVector(evo.C[i],N);
+// // // 				//printVector(evo.B[i],N);
+// // // 				printf("\n");
+// // // 			}
+// // // 			printf("\n\n");
+// // // 		}
+		
+		//pop = sample(&evo); /* do not change content of pop */
+		
+// 		if(fabs(sigmaPrev-sw.sigma) > 10000){
+// 			fprintf(stderr, "\nWARNING!, sigma changed too much: %f -> %f. resetting...\n",sigmaPrev, sw.sigma); //shows warning message
+// 			sw.init=true; //set the init flag, so all the CMA-ES variables are reset
+// 			myLearn(sw); //learn again using the default values as base
+// 		}
+		
+		if(sw.sigma != sw.sigma || sw.sigma >= MAXDOUBLE){ //check for invalid numbers NaN or inf
+			fprintf(stderr, "\nWARNING!, sigma: %f. resetting...\n", sw.sigma); //shows warning message
+			sw.init=true; //set the init flag, so all the CMA-ES variables are reset
+			myLearn(sw); //learn again using the default values as base
+		}
+// 		for(int i=0;i<N;i++){
+// 			for(int j=0;j<N;j++){
+// 				if(sw.C[i][j] != sw.C[i][j] || sw.C[i][j] >= MAXDOUBLE || sw.C[i][j] <= -MAXDOUBLE){
+// 					fprintf(stderr, "\nWARNING!, value: %f in Covariance matrix. resetting...\n", sw.C[i][j]); //shows warning message
+// 					
+// 					exit(1);
+// 					
+// 					sw.init=true; //set the init flag, so all the CMA-ES variables are reset
+// 					myLearn(sw); //learn again using the default values as base
+// 				}
+// 			}
+// 		}
+
+		
+		
+		mySample(sw);
+// 		sample(&evo); 
+		
+		
+		if(logCMAES){
+			printf("\n\npop after \n\n");
+			for(int i=0; i<sw.swarmSize;i++){
+				//printVector(evo.rgrgx[i],N+2);
+				printVector(sw.particles[i].solution.decisionVector,N);
+				printf("\n");
+			}
+		}
+		
+		
+		
+		
+// 		double sum = 0, maior=0;
+// 		for(int i=0;i<lambda;i++){
+// 			for(int j=0;j<N;j++)
+// 				sum=normalize(sw.particles[i].solution.decisionVector[j], inferiorPositionLimit[j], superiorPositionLimit[j]);
+// 			if(sum>maior)
+// 				maior=sum;
+// 		}
+		
+			
+		
+		
+		//if(lambda>=50){
+// 		if(maior>2){
+// 			printf("\nCov Mat after sampling\n");
+// 			for(int i=0; i<N;i++){
+// 				printVector(sw.C[i],N);
+// 				//printVector(evo.B[i],N);
+// 				printf("\n");
+// 			}
+// 			printf("\n\n");
+// 		}
+		
+		
+// 		for(int i=0; i<lambda;i++) //copy the new solutions back
+// 			for(int j=0;j<decisionNumber;j++)
+// 				sw.repository.getSolution(i).decisionVector[j]= fabs((evo.rgrgx[i][j]*max[j])+min[j]); //unormalize
+		
+			
+			
+			
+			
+			
+		//if(lambda>=50){
+// 		if(maior>5){
+// 			printf("\n\npop after (%f)\n", maior);
+// 			for(int i=0; i<lambda;i++){
+// 				//printVector(evo.rgrgx[i],N+2);
+// 				//printVector(sw.repository.getSolution(i).decisionVector,N);
+// 				printVector(sw.particles[i].solution.decisionVector,N);
+// 				printf("\n");
+// 			}
+			
+			
+// 			printf("\n\nmin before: ");
+// 			printVector(min, N);
+// // // 			printf("\ncentroid: ");
+// // // 			printVector(sw.centroid, N);
+// // // 			printf("\ncentroid norm: ");
+// // // 			printVector(centroid, N);
+// 			printf("\nmax before: ");
+// 			printVector(max, N);
+// 			printf("\n\n");
+			
+// 			printf("\nmax: %f\n", maior);
+// 			exit(1);
+// 		}
+		//exit(1);
+		
+		
+		
+		
+		/* read instructions for printing output or changing termination conditions */ 
+		//cmaes_ReadSignals(&evo, "cmaes_signals.par");
+	//	fflush(stdout); /* useful in MinGW */
+	//}
+// 	printf("Stop:\n%s\n",  cmaes_TestForTermination(&evo)); /* print termination reason */
+// 	cmaes_WriteToFile(&evo, "all", "allcmaes.dat");         /* write final results */
+	
+	/* get best estimator for the optimum, xmean */
+// 	xfinal = cmaes_GetNew(&evo, "xmean"); /* "xbestever" might be used as well */
+
+// 	cmaes_exit(&evo); /* release memory */ 
+	
+	/* do something with final solution and finally release memory */
+// 	free(xfinal); 
+	
+	//return 0;
+}
+
+void myLearn(Swarm &sw){
+	int solSize=sw.repository.getActualSize();
+	int N=decisionNumber, hsig;
+	double oldMean[N], weights[solSize], initialStds[N], BDz[N];
+	double muEff, cSigma, dSigma, cc, muCov, cCov, weightSum=0.0, trace=0.0, chiN;
+	//double sigma, C[N][N], pC[N], pSigma[N], D[N], mean[N], B[N][N];
+	
+	/***************setting default parameters according to****************/
+	//https://www.lri.fr/~hansen/hansenedacomparing.pdf
+	// in my strategy lambda = mu = solSize
+	
+	for(int i=0;i<solSize;i++){ //linear weight distribution
+		weights[i]=1.0/solSize;
+		weightSum+=weights[i]*weights[i];
+	}
+	muEff=1.0/weightSum;
+// 	cSigma= (muEff+2.0)/(N+muEff+3.0); //code
+	cSigma= (muEff+2.0)/(N+muEff+5.0); //paper
+	dSigma= 1.0+ 2.0*( std::max(0.0, sqrt( (muEff-1.0)/(N+1.0) )-1.0 )) +cSigma;
+// 	cc= 4.0/(N+4.0); //code
+	cc= (4.0+(muEff/N))/ (N+4.0+(2.0*muEff/N)); //paper
+	
+	muCov=muEff;
+	cCov=((1.0/muCov)*(2.0/( (N+sqrt(2.0))*(N+sqrt(2.0)) )))+((1.0- (1.0/muCov))*std::min(1.0, ((2.0*muEff)-1.0)/( ((N+2.0)*(N+2.0))+muEff )  ));
+	chiN = sqrt((double) N) * (1.0 - 1.0/(4.0*N) + 1./(21.0*N*N));
+	/***************setting default parameters ****************/
+	if(sw.init){
+		for (int i = 0; i < N; ++i){  //avoid memory garbage
+			for (int j = 0; j < N; j++)
+			sw.B[i][j]=0.0;										//need to keep
+			sw.B[i][i]=1.0;										//need to keep
+			initialStds[i] = 0.3;									//does not change
+			trace += initialStds[i]*initialStds[i];						//does not change
+		}
+		
+		//0.3=original code // 0.5=original paper
+		sw.sigma=0.5;											//need to keep
+		for (int i = 0; i < N; ++i){  //avoid memory garbage
+			for (int j = 0; j < N; j++)
+				sw.C[i][j]=0.0;								//need to keep
+			sw.pC[i] = sw.pSigma[i] = 0.0;						//need to keep
+			sw.mean[i]=0.5;									//need to keep
+// 			sw.mean[i]=normalize(sw.centroid[i], inferiorPositionLimit[i], superiorPositionLimit[i]);
+		}
+		for (int i = 0; i < N; ++i) {
+			sw.C[i][i] = sw.D[i] = initialStds[i] * sqrt(N / trace);	//need to keep
+			sw.C[i][i] *= sw.C[i][i];							//need to keep
+		}
+		sw.gen=0;
+		sw.init=false;
+		if(logCMAES)
+			printf("\n INIT \n");
+	}else
+		sw.gen++;
+		//exit(1);
+	
+	//******************************************//
+	
+	for (int i = 0; i < N; ++i) {
+		oldMean[i]=sw.mean[i];
+		sw.mean[i]=0;
+		for(int j=0;j<solSize;++j)
+			//sw.mean[i]+=weights[j]*sw.repository.getSolution(j).decisionVector[i];
+			sw.mean[i]+=weights[j]*normalize(sw.repository.getSolution(j).decisionVector[i], inferiorPositionLimit[i], superiorPositionLimit[i]);
+		BDz[i] = sqrt(muEff)*(sw.mean[i] - oldMean[i])/sw.sigma; //z
+	}
+	
+	double sum, tmp[N], psxps=0.0;
+	for (int i = 0; i < N; i++) {
+		sum=0;
+		for (int j = 0; j < N; ++j)
+			sum += sw.B[j][i] * BDz[j]; //Bz
+		tmp[i] = sum / sw.D[i]; //BDz
+	}
+	
+	for (int i = 0; i < N; i++) {
+		sum=0;
+		for (int j = 0; j < N; ++j)
+			sum += sw.B[i][j] * tmp[j]; //B D^-1 B'
+		
+		double ant=sw.pSigma[i];
+		sw.pSigma[i] = (1.0 - cSigma) * sw.pSigma[i] + sqrt(cSigma * (2.0 - cSigma)) * sum;
+		
+		//printf("\npSigma[%d]=%f*%f+%f*%f\n",i,(1.0-cSigma),ant,sqrt(cSigma * (2.0 - cSigma)),sum);
+		
+// 		if(logCMAES)
+// 			printf("\npSigma[%d] %f = (1.0 - %f) * %f[%d] + sqrt(%f * (2.0 - %f)) * %f", i, sw.pSigma[i], cSigma, ant, i, cSigma, cSigma, sum);
+		
+		
+		
+		/* calculate norm(ps)^2 */
+		psxps += sw.pSigma[i] * sw.pSigma[i];
+	}
+	
+	/* cumulation for covariance matrix (pc) using B*D*z~N(0,C) */
+	hsig = sqrt(psxps) / sqrt(1.0 - pow(1.0-cSigma, 2*(sw.gen+1))) / chiN < 1.4 + 2.0/(N+1);
+	
+	for (int i = 0; i < N; ++i)
+		sw.pC[i] = (1.0 - cc) * sw.pC[i] + hsig * sqrt(cc * (2.0 - cc)) * BDz[i];
+	
+	//************  Adapt_C2  *********// Update covariance matrix
+// 	double ccov1 = std::min(cCov * (1.0/muCov) * 1.0, 1.0); //code
+	double ccov1 = 2.0/(((N+1.3)*(N+1.3))+muEff); //paper
+// 	double ccovmu = std::min(cCov * (1-1.0/muCov)* 1.0, 1.0-ccov1); //code
+	double ccovmu = std::min(1.0-ccov1, 2 * ( ( (muEff-2.0)+(1.0/muEff) )/( (N+2.0)*(N+2.0) + (2.0*muEff)/2.0 ) )); //paper
+	
+	double sigmasquare = sw.sigma * sw.sigma; 
+	/* update covariance matrix */
+	for (int i = 0; i < N; ++i)
+		for (int j = 0; j <= i; ++j) {
+			sw.C[i][j] = (1 - ccov1 - ccovmu) * sw.C[i][j] + ccov1* (sw.pC[i] * sw.pC[j] + (1-hsig)*cc*(2.0-cc) * sw.C[i][j]);
+			for (int k = 0; k < solSize; ++k) { /* additional rank mu update */
+				//sw.C[i][j] += ccovmu * weights[k]* (sw.repository.getSolution(k).decisionVector[i] - oldMean[i]) * (sw.repository.getSolution(k).decisionVector[j] - oldMean[j])/ sigmasquare;
+				sw.C[i][j] += ccovmu * weights[k]* (normalize(sw.repository.getSolution(k).decisionVector[i], inferiorPositionLimit[i], superiorPositionLimit[i]) - oldMean[i]) * (normalize(sw.repository.getSolution(k).decisionVector[j], inferiorPositionLimit[j], superiorPositionLimit[j]) - oldMean[j])/ sigmasquare;
+			}
+		}
+	//**************************************//
+	
+	/* update of sigma */
+	sw.sigma *= exp(((sqrt(psxps)/chiN)-1.0)*cSigma/dSigma);
+	
+	
+	
+// 	//CHECK THIS LATER
+// 	if(sw.sigma > 200){
+// 		printf("\nescape excessive sigma: %f -> ", sw.sigma);
+// // 		sw.sigma = 200;// * exp(0.2+cSigma/dSigma);
+// // 		sw.sigma =1;
+// 		printf("%f \n", sw.sigma);
+// 		
+// 	}
+// 	// CHECK THIS LATER
+	
+	if(logCMAES){
+		printf("\n\nmueff %f, cSigma %f, dSigma %f, ccumcov %f, ccov %f, sigma %f", muEff, cSigma, dSigma, cc, cCov, sw.sigma);
+		printf("\nhsig %d, psxps %f, chiN %f, gen %d \n", hsig, psxps, chiN, sw.gen);
+	// 	printf("\n\nweights - solSize: %d : ", solSize);
+	// 	printVector(weights, solSize);
+		
+		printf("\navg_old : ");
+		printVector(oldMean, N);
+		printf("\navg :     ");
+		printVector(sw.mean, N);
+
+// 		printf("\n\nD mat:");
+// 		printVector(sw.D, N);
+		printf("\n\nBDz: ");
+		printVector(BDz, N);
+		printf("\ntmp : ");
+		printVector(tmp, N);
+		printf("\nps : ");
+		printVector(sw.pSigma, N);
+		printf("\npc : ");
+		printVector(sw.pC, N);
+	}
+// 		t->rgBDz[i] = sqrt(t->sp.mueff)*(t->rgxmean[i] - t->rgxold[i])/t->sigma; 
+	
+// 	printf("\n\nrgD (new): ");
+// 	printVector(D, N);
+// 	printf("\n\nB (new): \n");
+// 	for (int i = 0; i < N; ++i){
+// 		printVector(B[i], N);
+// 		printf("\n");
+// 	}
+	printf("\n\nCov mat: \n");
+	for (int i = 0; i < N; ++i){
+		printVector(sw.C[i], N);
+		printf("\n");
+	}
+}
+
+void mySample (Swarm &sw){
+	int N=decisionNumber;
+	/* calculate eigensystem */
+	
+	double rgdTmp[N];
+	
+	if(logCMAES){
+		printf("\n----------------------before eigen calculation ---------------------- ");
+		
+// 		printf("\nCov mat: \n");
+// 		for (int i = 0; i < N; ++i){
+// 			printVector(sw.C[i], N);
+// 			printf("\n");
+// 		}
+		
+		printf("\nB mat: \n");
+		for (int i = 0; i < N; ++i){
+			printVector(sw.B[i], N);
+			printf("\n");
+		}
+		
+		printf("\nD mat: \n");
+		printVector(sw.D, N);
+		printf("\n");
+		
+		printf("---------------------end before ---------------------- \n");
+	}
+	
+		
+	Eigen( N, sw.C, sw.D, sw.B, rgdTmp);
+	for (int i = 0; i < N; ++i)
+		sw.D[i] = sqrt(sw.D[i]);
+	
+// // // // 	if(sw.sigma > 200){
+// // // // 	
+// // // // 		double maxSum=MAXDOUBLE*-1;
+// // // // 		for (int i = 0; i < N; ++i)
+// // // // 			rgdTmp[i] = sw.D[i] * 3;
+// // // // 		for (int i = 0; i < N; ++i){
+// // // // 			double sm=0.0;
+// // // // 			for (int j = 0; j < N; ++j)
+// // // // 				sm += sw.B[i][j] * rgdTmp[j];
+// // // // 			
+// // // // 			if(fabs(sm)>maxSum){
+// // // // 				maxSum=fabs(sm);
+// // // // 	// 			sw.sigma= (1-sw.mean[i])/maxSum ;//(sigma= (resFinal_esperado - media)/maxSum )
+// // // // 				
+// // // // 				sw.sigma= std::max( (1-sw.mean[i])/maxSum, (sw.mean[i]-0)/maxSum );
+// // // // 				
+// // // // 				
+// // // // 				printf("\n intermediate sigma: %f mean: %f sum: %f i: %d max(%f,%f) \n", sw.sigma, sw.mean[i], maxSum, i, (1-sw.mean[i])/maxSum, (sw.mean[i]-0)/maxSum);
+// // // // 			}
+// // // // 		}
+// // // // 	}
+	
+	
+	
+	if(logCMAES){
+		printf("---------------------after eigen calculation ---------------------- \n");
+		
+// 		printf("\nCov mat: \n");
+// 		for (int i = 0; i < N; ++i){
+// 			printVector(sw.C[i], N);
+// 			printf("\n");
+// 		}
+		
+		printf("B mat: \n");
+		for (int i = 0; i < N; ++i){
+			printVector(sw.B[i], N);
+			printf("\n");
+		}
+		
+		printf("\nD mat: \n");
+		printVector(sw.D, N);
+		printf("\n");
+		
+		printf("---------------------end after ---------------------- \n");
+		
+		printf("\nsigma: %f\n",sw.sigma);
+		
+		printf("\nexpected values in the range: (supposed to be [0,1] )\n");
+		for (int i = 0; i < N; ++i)
+			rgdTmp[i] = sw.D[i] * 3;
+		printf("\nD (sample) (* 3) : ");
+		for (int i = 0; i < N; ++i){
+			double sum = 0.0;
+			for (int j = 0; j < N; ++j)
+				sum += sw.B[i][j] * rgdTmp[j];
+			printf("%f ", /*fabs*/(sw.mean[i] + sw.sigma * sum ) );
+		}
+		
+		for (int i = 0; i < N; ++i)
+			rgdTmp[i] = sw.D[i] * -3;
+		printf("\nD (sample) (* -3): ");
+		for (int i = 0; i < N; ++i){
+			double sum = 0.0;
+			for (int j = 0; j < N; ++j)
+				sum += sw.B[i][j] * rgdTmp[j];
+			printf("%f ", /*fabs*/(sw.mean[i] + sw.sigma * sum ) );
+		}
+	}
+// 	printf("\nD (sample) (difsum): ");
+// 	for (int i = 0; i < N; ++i){
+// 		for (j = 0, sum = 0.0; j < N; ++j)
+// 			sum += sw.B[i][j] * rgdTmp[j];
+// 		printf("%f ", fabs(sw.mean[i] + sw.sigma * sw.D[i]*-3 )+fabs(sw.mean[i] + sw.sigma * sqrt(sw.D[i])*3 ) );
+// 	}
+	
+	/*************************/
+	
+	
+	
+	
+	
+
+	/* calculate eigensystem  */
+	//if (!t->flgEigensysIsUptodate) { //does not call on it0
+		//if (!flgdiag)
+			//cmaes_UpdateEigensystem(t, 0);
+		//else {
+// // // 			for (i = 0; i < N; ++i)
+// // // 				sw.D[i] = sqrt(sw.C[i][i]);
+// 			t->minEW = douSquare(rgdouMin(t->rgD, N)); 
+// 			t->maxEW = douSquare(rgdouMax(t->rgD, N));
+// 			t->flgEigensysIsUptodate = 1;
+// 			cmaes_timings_start(&t->eigenTimings);
+		//}
+	//}
+	
+	/* treat minimal standard deviations and numeric problems */
+	//TestMinStdDevs(t);
+	
+// // // // // 	for (iNk = 0; iNk < sw.swarmSize; ++iNk){ /* generate scaled cmaes_random vector (D * z)    */
+// // // // // 		for (i = 0; i < N; ++i)
+// // // // // 			//if (flgdiag)
+// // // // // 				//sw.particles[iNk].solution.decisionVector[i] = sw.mean[i] + sw.sigma * sw.D[i] * cmaes_random_Gauss();
+// // // // //  				sw.particles[iNk].solution.decisionVector[i] = fabs( ((sw.mean[i] + sw.sigma * sw.D[i] * cmaes_random_Gauss())*(superiorPositionLimit[i]-inferiorPositionLimit[i]))+inferiorPositionLimit[i]  );
+// // // // // //				sw.particles[iNk].solution.decisionVector[i] = ((sw.mean[i] + sw.sigma * sw.D[i] * cmaes_random_Gauss())*(superiorPositionLimit[i]-inferiorPositionLimit[i]))+inferiorPositionLimit[i];
+// // // // // // 				sw.particles[iNk].solution.decisionVector[i] = cmaes_random_Gauss();
+// // // // // 		
+// // // // // 		
+// // // // // // 			else
+// // // // // // 				t->rgdTmp[i] = t->rgD[i] * cmaes_random_Gauss(&t->rand);
+// // // // // // 			if (!flgdiag)
+// // // // // // 				/* add mutation (sigma * B * (D*z)) */
+// // // // // // 				for (i = 0; i < N; ++i) {
+// // // // // // 					for (j = 0, sum = 0.; j < N; ++j)
+// // // // // // 						sum += t->B[i][j] * t->rgdTmp[j];
+// // // // // // 					t->rgrgx[iNk][i] = sw.mean[i] + t->sigma * sum;
+// // // // // // 				}
+// // // // // 	}
+for(int i=0;i<N;i++){
+	if(sw.D[i] != sw.D[i] || sw.D[i] >= MAXDOUBLE || sw.D[i] <= -MAXDOUBLE){
+		fprintf(stderr, "\nWARNING!, value: %f in eigenValues vector. resetting...\n", sw.D[i]); //shows warning message
+		sw.init=true; //set the init flag, so all the CMA-ES variables are reset
+		myLearn(sw); //learn again using the default values as base
+	}
+}
+
+
+
+for (int iNk = 0; iNk < sw.swarmSize; ++iNk){ /* generate scaled cmaes_random vector (D * z)    */
+	for (int i = 0; i < N; ++i)
+		rgdTmp[i] = sw.D[i] * cmaes_random_Gauss();
+	/* add mutation (sigma * B * (D*z)) */
+	for (int i = 0; i < N; ++i) {
+		double sum = 0.0;
+		for (int j = 0; j < N; ++j)
+			sum += sw.B[i][j] * rgdTmp[j];
+// 		t->rgrgx[iNk][i] = sw.mean[i] + sw.sigma * sum;
+// 		sw.particles[iNk].solution.decisionVector[i] = ((sw.mean[i] + sw.sigma * sum)*(superiorPositionLimit[i]-inferiorPositionLimit[i]))+inferiorPositionLimit[i];
+		sw.particles[iNk].solution.decisionVector[i] = /*fabs*/( ((sw.mean[i] + sw.sigma * sum) * (superiorPositionLimit[i]-inferiorPositionLimit[i])) )+inferiorPositionLimit[i] ;
+	}
+}
+
+// 	if(t->state == 3 || t->gen == 0)
+// 		++t->gen;
+// 	t->state = 1; 
+// 	
+// 	return(t->rgrgx);
+} /* SamplePopulation() */
+
+double cmaes_random_Gauss(){
+	double x1, x2, rquad, fac;
+	
+	do {
+		x1 = 2.0 * rand()/(double)RAND_MAX - 1.0;
+		x2 = 2.0 * rand()/(double)RAND_MAX - 1.0;
+		rquad = x1*x1 + x2*x2;
+	} while(rquad >= 1 || rquad <= 0);
+	fac = sqrt(-2.0*log(rquad)/rquad);
+	return fac * x2;
+}
+
+static void QLalgo2 (int n, double *d, double *e, double V[][maxDecisionNumber]) {
+	/*
+	 * - > n     : Dimen*sion. 
+	 * -> d     : Diagonale of tridiagonal matrix. 
+	 * -> e[1..n-1] : off-diagonal, output from Householder
+	 * -> V     : matrix output von Householder
+	 * <- d     : eigenvalues
+	 * <- e     : garbage?
+	 * <- V     : basis of eigenvectors, according to d
+	 * 
+	 * Symmetric tridiagonal QL algorithm, iterative 
+	 * Computes the eigensystem from a tridiagonal matrix in roughtly 3N^3 operations
+	 * 
+	 * code adapted from Java JAMA package, function tql2. 
+	 */
+	
+	int i, k, l, m;
+	double f = 0.0;
+	double tst1 = 0.0;
+	double eps = 2.22e-16; /* Math.pow(2.0,-52.0);  == 2.22e-16 */
+	
+	/* shift input e */
+	for (i = 1; i < n; i++) {
+		e[i-1] = e[i];
+	}
+	e[n-1] = 0.0; /* never changed again */
+	
+	for (l = 0; l < n; l++) { 
+		
+		/* Find small subdiagonal element */
+		
+		if (tst1 < fabs(d[l]) + fabs(e[l]))
+			tst1 = fabs(d[l]) + fabs(e[l]);
+		m = l;
+		while (m < n) {
+			if (fabs(e[m]) <= eps*tst1) {
+				/* if (fabs(e[m]) + fabs(d[m]+d[m+1]) == fabs(d[m]+d[m+1])) { */
+				break;
+			}
+			m++;
+		}
+		
+		/* If m == l, d[l] is an eigenvalue, */
+		/* otherwise, iterate. */
+		
+		if (m > l) {  /* TODO: check the case m == n, should be rejected here!? */
+			int iter = 0;
+			do { /* while (fabs(e[l]) > eps*tst1); */
+				double dl1, h;
+				double g = d[l];
+				double p = (d[l+1] - g) / (2.0 * e[l]); 
+				double r = myhypot(p, 1.); 
+				
+				iter = iter + 1;  /* Could check iteration count here */
+				
+				/* Compute implicit shift */
+				
+				if (p < 0) {
+					r = -r;
+				}
+				d[l] = e[l] / (p + r);
+				d[l+1] = e[l] * (p + r);
+				dl1 = d[l+1];
+				h = g - d[l];
+				for (i = l+2; i < n; i++) {
+					d[i] -= h;
+				}
+				f = f + h;
+				
+				/* Implicit QL transformation. */
+				
+				p = d[m];
+				{
+					double c = 1.0;
+					double c2 = c;
+					double c3 = c;
+					double el1 = e[l+1];
+					double s = 0.0;
+					double s2 = 0.0;
+					for (i = m-1; i >= l; i--) {
+						c3 = c2;
+						c2 = c;
+						s2 = s;
+						g = c * e[i];
+						h = c * p;
+						r = myhypot(p, e[i]);
+						e[i+1] = s * r;
+						s = e[i] / r;
+						c = p / r;
+						p = c * d[i] - s * g;
+						d[i+1] = h + s * (c * g + s * d[i]);
+						
+						/* Accumulate transformation. */
+						
+						for (k = 0; k < n; k++) {
+							h = V[k][i+1];
+							V[k][i+1] = s * V[k][i] + c * h;
+							V[k][i] = c * V[k][i] - s * h;
+						}
+					}
+					p = -s * s2 * c3 * el1 * e[l] / dl1;
+					e[l] = s * p;
+					d[l] = c * p;
+				}
+				
+				/* Check for convergence. */
+				
+			} while (fabs(e[l]) > eps*tst1);
+		}
+		d[l] = d[l] + f;
+		e[l] = 0.0;
+	}
+	
+	/* Sort eigenvalues and corresponding vectors. */
+	#if 1
+	/* TODO: really needed here? So far not, but practical and only O(n^2) */
+	{
+		int j; 
+		double p;
+		for (i = 0; i < n-1; i++) {
+			k = i;
+			p = d[i];
+			for (j = i+1; j < n; j++) {
+				if (d[j] < p) {
+					k = j;
+					p = d[j];
+				}
+			}
+			if (k != i) {
+				d[k] = d[i];
+				d[i] = p;
+				for (j = 0; j < n; j++) {
+					p = V[j][i];
+					V[j][i] = V[j][k];
+					V[j][k] = p;
+				}
+			}
+		}
+	}
+	#endif 
+} /* QLalgo2 */ 
+
+
+/* ========================================================= */
+static void Householder2(int n, double V[][maxDecisionNumber], double *d, double *e) {
+	/* 
+	 * H ouseholder tra*nsformation of a symmetric matrix V into tridiagonal form. 
+	 * -> n             : dimension
+	 * -> V             : symmetric nxn-matrix
+	 * <- V             : orthogonal transformation matrix:
+	 * tridiag matrix == V * V_in * V^t
+	 * <- d             : diagonal
+	 * <- e[0..n-1]     : off diagonal (elements 1..n-1) 
+	 * 
+	 * code slightly adapted from the Java JAMA package, function private tred2()  
+	 * 
+	 */
+	
+	int i,j,k; 
+	
+	for (j = 0; j < n; j++) {
+		d[j] = V[n-1][j];
+	}
+	
+	/* Householder reduction to tridiagonal form */
+	
+	for (i = n-1; i > 0; i--) {
+		
+		/* Scale to avoid under/overflow */
+		
+		double scale = 0.0;
+		double h = 0.0;
+		for (k = 0; k < i; k++) {
+			scale = scale + fabs(d[k]);
+		}
+		if (scale == 0.0) {
+			e[i] = d[i-1];
+			for (j = 0; j < i; j++) {
+				d[j] = V[i-1][j];
+				V[i][j] = 0.0;
+				V[j][i] = 0.0;
+			}
+		} else {
+			
+			/* Generate Householder vector */
+			
+			double f, g, hh;
+			
+			for (k = 0; k < i; k++) {
+				d[k] /= scale;
+				h += d[k] * d[k];
+			}
+			f = d[i-1];
+			g = sqrt(h);
+			if (f > 0) {
+				g = -g;
+			}
+			e[i] = scale * g;
+			h = h - f * g;
+			d[i-1] = f - g;
+			for (j = 0; j < i; j++) {
+				e[j] = 0.0;
+			}
+			
+			/* Apply similarity transformation to remaining columns */
+			
+			for (j = 0; j < i; j++) {
+				f = d[j];
+				V[j][i] = f;
+				g = e[j] + V[j][j] * f;
+				for (k = j+1; k <= i-1; k++) {
+					g += V[k][j] * d[k];
+					e[k] += V[k][j] * f;
+				}
+				e[j] = g;
+			}
+			f = 0.0;
+			for (j = 0; j < i; j++) {
+				e[j] /= h;
+				f += e[j] * d[j];
+			}
+			hh = f / (h + h);
+			for (j = 0; j < i; j++) {
+				e[j] -= hh * d[j];
+			}
+			for (j = 0; j < i; j++) {
+				f = d[j];
+				g = e[j];
+				for (k = j; k <= i-1; k++) {
+					V[k][j] -= (f * e[k] + g * d[k]);
+				}
+				d[j] = V[i-1][j];
+				V[i][j] = 0.0;
+			}
+		}
+		d[i] = h;
+	}
+	
+	/* Accumulate transformations */
+	
+	for (i = 0; i < n-1; i++) {
+		double h; 
+		V[n-1][i] = V[i][i];
+		V[i][i] = 1.0;
+		h = d[i+1];
+		if (h != 0.0) {
+			for (k = 0; k <= i; k++) {
+				d[k] = V[k][i+1] / h;
+			}
+			for (j = 0; j <= i; j++) {
+				double g = 0.0;
+				for (k = 0; k <= i; k++) {
+					g += V[k][i+1] * V[k][j];
+				}
+				for (k = 0; k <= i; k++) {
+					V[k][j] -= g * d[k];
+				}
+			}
+		}
+		for (k = 0; k <= i; k++) {
+			V[k][i+1] = 0.0;
+		}
+	}
+	for (j = 0; j < n; j++) {
+		d[j] = V[n-1][j];
+		V[n-1][j] = 0.0;
+	}
+	V[n-1][n-1] = 1.0;
+	e[0] = 0.0;
+	
+} /* Housholder() */
+
+/* ========================================================= */
+static void Eigen( int N,  double C[][maxDecisionNumber], double *diag, double Q[][maxDecisionNumber], double *rgtmp)
+/* 
+ * Calculating eigenvalues and vectors. 
+ * Input: 
+ *  N: dimension.
+ *  C: symmetric (1:N)xN-matrix, solely used to copy data to Q
+ *  niter: number of maximal iterations for QL-Algorithm. 
+ *  rgtmp: N+1-dimensional vector for temporal use. 
+ * Output: 
+ *  diag: N eigenvalues. 
+ *  Q: Columns are normalized eigenvectors.
+ */
+{
+	int i, j;
+	
+	if (rgtmp == NULL) /* was OK in former versions */
+		FATAL("cmaes_t:Eigen(): input parameter double *rgtmp must be non-NULL", 0,0,0);
+	
+	/* copy C to Q */
+	if (C != Q) {
+		for (i=0; i < N; ++i)
+			for (j = 0; j <= i; ++j)
+				Q[i][j] = Q[j][i] = C[i][j];
+	}
+	
+	#if 0
+	Householder( N, Q, diag, rgtmp);
+	QLalgo( N, diag, Q, 30*N, rgtmp+1);
+	#else
+	Householder2( N, Q, diag, rgtmp);
+	QLalgo2( N, diag, rgtmp, Q);
+	#endif
+	
+}
+
+
+
+
+
+
+
+double *learn( cmaes_t *t){
+	int i, j, iNk, hsig, N=t->sp.N;
+	int flgdiag = ((t->sp.diagonalCov == 1) || (t->sp.diagonalCov >= t->gen)); 
+	double sum; 
+	double psxps; 
+	
+	if(t->state == 3)
+		FATAL("cmaes_UpdateDistribution(): You need to call \n", "SamplePopulation() before update can take place.",0,0);
+// 	if(rgFunVal == NULL) 
+// 		FATAL("cmaes_UpdateDistribution(): ", "Fitness function value array input is missing.",0,0);
+		
+	if(t->state == 1)  /* function values are delivered here */
+		t->countevals += t->sp.lambda;
+	else
+		;//ERRORMESSAGE("cmaes_UpdateDistribution(): unexpected state",0,0,0);
+	
+// 	/* assign function values */
+// 	for (i=0; i < t->sp.lambda; ++i) 
+// 		t->rgrgx[i][N] = t->rgFuncValue[i] = rgFunVal[i];
+	
+	
+// 	/* Generate index */
+//  	Sorted_index(rgFunVal, t->index, t->sp.lambda);
+	
+// // 	/* Test if function values are identical, escape flat fitness */
+// // 	if (t->rgFuncValue[t->index[0]] == t->rgFuncValue[t->index[(int)t->sp.lambda/2]]) {
+// // 		t->sigma *= exp(0.2+t->sp.cs/t->sp.damps);
+// // 		ERRORMESSAGE("Warning: sigma increased due to equal function values\n", "   Reconsider the formulation of the objective function",0,0);
+// // 	}
+		
+// // 	/* update function value history */
+// // 	for(i = (int)*(t->arFuncValueHist-1)-1; i > 0; --i) /* for(i = t->arFuncValueHist[-1]-1; i > 0; --i) */
+// // 		t->arFuncValueHist[i] = t->arFuncValueHist[i-1];
+// // 	t->arFuncValueHist[0] = rgFunVal[t->index[0]];
+	
+// // 	/* update xbestever */
+// // 	if (t->rgxbestever[N] > t->rgrgx[t->index[0]][N] || t->gen == 1)
+// // 		for (i = 0; i <= N; ++i) {
+// // 			t->rgxbestever[i] = t->rgrgx[t->index[0]][i];
+// // 			t->rgxbestever[N+1] = t->countevals;
+// // 		}
+	
+	
+	
+// 	printf("\n");
+// 	printVector(t->rgxmean, N);
+// 	printf("\n");
+// 	exit(1);
+	
+	//rgxold is very important, but i do not have values for it yet
+// 	for(int i=0;i<N;i++)
+// 		t->rgxmean[i]=centroid[i];
+	
+	//weights set to mode equal and commented an error throwing when conseidering all the solutions equally in function (cmaes_readpara_SetWeights)
+	
+	//sigma constrols the "step size", hence the higher, higher is the variation (original=0.3)
+// 	t->sigma=0.05;
+// 	t->sigma=0.2;
+// 	t->sigma=0.0001;
+// 	t->sigma=1;
+	
+// 	printf("sigma b: %f \n", t->sigma);
+	
+	
+		
+	/* calculate xmean and rgBDz~N(0,C) */
+	for (i = 0; i < N; ++i) {
+		t->rgxold[i] = t->rgxmean[i];  //{0.5 ... 0.5}
+		t->rgxmean[i] = 0.;
+		for (iNk = 0; iNk < t->sp.mu; ++iNk) 
+// // // 			t->rgxmean[i] += t->sp.weights[iNk] * t->rgrgx[t->index[iNk]][i]; //uses the best sp.mu solutions. but since I set sp.mu == sp.lambda, all solutions are considered
+			t->rgxmean[i] += t->sp.weights[iNk] * t->rgrgx[iNk][i]; //uses the best sp.mu solutions. but since I set sp.mu == sp.lambda, all solutions are considered
+		t->rgBDz[i] = sqrt(t->sp.mueff)*(t->rgxmean[i] - t->rgxold[i])/t->sigma; 
+	}
+
+	/* calculate z := D^(-1) * B^(-1) * rgBDz into rgdTmp */
+	for (i = 0; i < N; ++i) {
+		if (!flgdiag)
+			for (j = 0, sum = 0.; j < N; ++j)
+				sum += t->B[j][i] * t->rgBDz[j];
+		else
+			sum = t->rgBDz[i];
+		t->rgdTmp[i] = sum / t->rgD[i];
+	}
+	
+	/* cumulation for sigma (ps) using B*z */
+	for (i = 0; i < N; ++i) {
+		if (!flgdiag)
+			for (j = 0, sum = 0.; j < N; ++j)
+				sum += t->B[i][j] * t->rgdTmp[j];
+		else
+			sum = t->rgdTmp[i];
+		t->rgps[i] = (1. - t->sp.cs) * t->rgps[i] + sqrt(t->sp.cs * (2. - t->sp.cs)) * sum;
+	}
+	
+	/* calculate norm(ps)^2 */
+	for (i = 0, psxps = 0.; i < N; ++i)
+		psxps += t->rgps[i] * t->rgps[i];
+	
+	/* cumulation for covariance matrix (pc) using B*D*z~N(0,C) */
+	hsig = sqrt(psxps) / sqrt(1. - pow(1.-t->sp.cs, 2*t->gen)) / t->chiN < 1.4 + 2./(N+1);
+	
+	if(logCMAES){
+		printf("\n\n");
+		printf("\nmueff %f, cSigma %f, dSigma %f, ccumcov %f, ccov %f, sigma %f \n", t->sp.mueff, t->sp.cs, t->sp.damps, t->sp.ccumcov, t->sp.ccov, t->sigma);
+		
+		printf("hsig %d, psxps %f, cs %f, gen %f, chiN %f, \n", hsig, psxps, t->sp.cs, t->gen, t->chiN);
+		printf("\nweights - solSize%d : ", t->sp.mu);
+		printVector(t->sp.weights, N);
+		printf("\navg : ");
+		printVector(t->rgxmean, N);
+		printf("\navg_old : ");
+		printVector(t->rgxold, N);
+	// 	printf("\n\nrgD : ");
+	// 	printVector(t->rgD, N);
+		
+		printf("\n\nrgDbz : ");
+		printVector(t->rgBDz, N);
+		printf("\ntmp : ");
+		printVector(t->rgdTmp, N);
+		printf("\nps : ");
+		printVector(t->rgps, N);
+		
+	// 	printf("\n\nB : \n");
+	// 	for (i = 0; i < N; ++i){
+	// 		printVector(t->B[i], N);
+	// 		printf("\n");
+	// 	}
+	// 	printf("\n\nC : \n");
+	// 	for (i = 0; i < N; ++i){
+	// 		printVector(t->C[i], N);
+	// 		printf("\n");
+	// 	}
+	}
+	
+	
+	
+	
+	for (i = 0; i < N; ++i) {
+		t->rgpc[i] = (1. - t->sp.ccumcov) * t->rgpc[i] + hsig * sqrt(t->sp.ccumcov * (2. - t->sp.ccumcov)) * t->rgBDz[i];
+	}
+	
+	/* stop initial phase */
+	if (t->flgIniphase && t->gen > douMin(1/t->sp.cs, 1+N/t->sp.mucov)) {
+		if (psxps / t->sp.damps / (1.-pow((1. - t->sp.cs), t->gen)) < N * 1.05) 
+			t->flgIniphase = 0;
+	}
+	
+	//t->sp.ccov != 0. && t->flgIniphase == 0
+	
+	if(logCMAES){
+		
+		printf("\npc : ");
+		printVector(t->rgpc, N);
+		
+		printf("\n\n");
+		printf("ccov %f, flginitphase %d\n", t->sp.ccov, t->flgIniphase);
+	}
+	
+	#if 0
+	/* remove momentum in ps, if ps is large and fitness is getting worse */
+	/* This is obsolete due to hsig and harmful in a dynamic environment */
+	if(psxps/N > 1.5 + 10.*sqrt(2./N) && t->arFuncValueHist[0] > t->arFuncValueHist[1] && t->arFuncValueHist[0] > t->arFuncValueHist[2]) {
+		double tfac = sqrt((1 + douMax(0, log(psxps/N))) * N / psxps);
+		for (i=0; i<N; ++i) 
+			t->rgps[i] *= tfac;
+		psxps *= tfac*tfac; 
+	}
+	#endif
+
+	/* update of C  */
+	Adapt_C2(t, hsig);
+
+	/* Adapt_C(t); not used anymore */
+
+	#if 0
+	if (t->sp.ccov != 0. && t->flgIniphase == 0) {
+		int k; 
+		
+		t->flgEigensysIsUptodate = 0;
+		
+		/* update covariance matrix */
+		for (i = 0; i < N; ++i)
+			for (j = 0; j <=i; ++j) {
+				t->C[i][j] = (1 - t->sp.ccov) * t->C[i][j] + t->sp.ccov * (1./t->sp.mucov) * (t->rgpc[i] * t->rgpc[j] + (1-hsig)*t->sp.ccumcov*(2.-t->sp.ccumcov) * t->C[i][j]);
+				for (k = 0; k < t->sp.mu; ++k) /* additional rank mu update */
+					t->C[i][j] += t->sp.ccov * (1-1./t->sp.mucov) * t->sp.weights[k]  * (t->rgrgx[t->index[k]][i] - t->rgxold[i]) * (t->rgrgx[t->index[k]][j] - t->rgxold[j]) / t->sigma / t->sigma; 
+			}
+	}
+	#endif
+	
+	/* update of sigma */
+	t->sigma *= exp(((sqrt(psxps)/t->chiN)-1.)*t->sp.cs/t->sp.damps);
+	
+	if(logCMAES){
+	
+		printf("\n\nC(old): updated (sigma: %f) \n", t->sigma);
+		for (i = 0; i < N; ++i){
+			printVector(t->C[i], N);
+			printf("\n");
+		}
+	}
+
+	t->state = 3;
+	
+	//printf("sigma a: %f \n\n", t->sigma);
+	return (t->rgxmean);
+
+}
+
+
+double * const * sample(cmaes_t *t){
+	int iNk, i, j, N=t->sp.N;
+	int flgdiag = ((t->sp.diagonalCov == 1) || (t->sp.diagonalCov >= t->gen)); 
+	
+// // 	printf("\nflgdiag: %d\n", flgdiag);
+// // 	printf("diagonalCov: %f\n", t->sp.diagonalCov);
+// // 	
+// // 	if(flgdiag) //it 0
+// // 		printf("smp true\n");
+// // 	else //other it
+// // 		printf("smp false\n");
+// // 	
+// // 	
+// // 	if(t->flgEigensysIsUptodate) //it 0
+// // 		printf("eigensysuptodate true\n");
+// // 	else //other it
+// // 		printf("eigensysuptodate false\n");
+// // 	
+// // 	printVector(t->rgD, N);
+// // 	printf("\n");
+	
+	
+	// 	if (t->sp.rgDiffMinChange == NULL) //always NULL
+	// 		printf("t->sp.rgDiffMinChange NULL\n");
+	// 	else
+	// 		printf("t->sp.rgDiffMinChange VALID\n");
+	
+	for (int i = 0; i < N; ++i){  //avoid memory garbage
+		for (int j = 0; j < N; j++)
+			t->B[i][j]=0.0;										//need to keep
+		t->rgD[i]=0.0;										//need to keep
+	}
+	
+	
+	double sum;
+	double const *xmean = t->rgxmean; 
+	
+	/* cmaes_SetMean(t, xmean); * xmean could be changed at this point */
+	
+	/* calculate eigensystem  */
+	if (!t->flgEigensysIsUptodate) { //does not call on it0
+		if (!flgdiag)
+			cmaes_UpdateEigensystem(t, 0);
+		else {
+			printf("\n NON UPDATE EIGENSYSTEM \n");
+			for (i = 0; i < N; ++i)
+				t->rgD[i] = sqrt(t->C[i][i]);
+			t->minEW = douSquare(rgdouMin(t->rgD, N)); 
+			t->maxEW = douSquare(rgdouMax(t->rgD, N));
+			t->flgEigensysIsUptodate = 1;
+			cmaes_timings_start(&t->eigenTimings);
+		}
+	}
+
+	/* treat minimal standard deviations and numeric problems */
+	TestMinStdDevs(t);
+	
+	for (iNk = 0; iNk < t->sp.lambda; ++iNk){ /* generate scaled cmaes_random vector (D * z)    */
+		for (i = 0; i < N; ++i)
+			if (flgdiag)
+				t->rgrgx[iNk][i] = xmean[i] + t->sigma * t->rgD[i] * cmaes_random_Gauss(&t->rand);
+			else
+				t->rgdTmp[i] = t->rgD[i] * cmaes_random_Gauss(&t->rand);
+			if (!flgdiag)
+				/* add mutation (sigma * B * (D*z)) */
+				for (i = 0; i < N; ++i) {
+					for (j = 0, sum = 0.; j < N; ++j)
+						sum += t->B[i][j] * t->rgdTmp[j];
+					t->rgrgx[iNk][i] = xmean[i] + t->sigma * sum;
+				}
+	}
+	if(t->state == 3 || t->gen == 0)
+		++t->gen;
+	t->state = 1; 
+	
+	
+	
+	printf("---------------------oldSample ---------------------- \n");
+	
+	printf("\nCov mat: \n");
+	for (int i = 0; i < N; ++i){
+		printVector(t->C[i], N);
+		printf("\n");
+	}
+	
+	printf("\nB mat: \n");
+	for (int i = 0; i < N; ++i){
+		printVector(t->B[i], N);
+		printf("\n");
+	}
+	
+	printf("\nD mat: \n");
+	printVector(t->rgD, N);
+	printf("\n");
+	
+	printf("\n---------------------end ---------------------- \n");
+	
+	
+	
+	
+	
+	
+	
+	
+	return(t->rgrgx);
+} /* SamplePopulation() */
+
+
+void activeLearn(Swarm &sw){
+	//int solSize=sw.repository.getActualSize();
+	int N=decisionNumber, hsig, mu;
+	double oldMean[N], initialStds[N], BDz[N];
+	double muEff, cSigma, dSigma, cc, muCov, cCov, weightSum=0.0, trace=0.0, chiN;
+	
+	double dominated[sw.swarmSize][N], nonDominated[sw.swarmSize][N];
+	int dom=0, nonDom=0;
+	for(int i=0;i<sw.swarmSize;i++){
+		if(sw.particles[i].solution.dominated){
+			for(int j=0;j<N;j++)
+				dominated[dom][j]=normalize(sw.particles[i].solution.decisionVector[j], inferiorPositionLimit[j], superiorPositionLimit[j]);
+			dom++;
+		}
+		else{
+			for(int j=0;j<N;j++)
+				nonDominated[nonDom][j]=normalize(sw.particles[i].solution.decisionVector[j], inferiorPositionLimit[j], superiorPositionLimit[j]);
+			nonDom++; //mu
+		}
+	}
+	//in case there is no non-dominated solution in this generation, learn the matrix from the repository
+	if(nonDom == 0){
+		for(int i=0;i<sw.repository.getActualSize();i++){
+			for(int j=0;j<N;j++)
+				nonDominated[nonDom][j]=normalize(sw.repository.getSolution(i).decisionVector[j], inferiorPositionLimit[j], superiorPositionLimit[j]);
+			nonDom++; //mu
+		}
+	}
+	
+	/***************setting default parameters according to****************/
+	//https://www.lri.fr/~hansen/hansenedacomparing.pdf
+	// in my strategy lambda = mu = solSize
+	//mu=solSize;
+	mu=nonDom;
+	
+// 	weights[sw.swarmSize]
+// 	for(int i=0;i<mu;i++){ //linear weight distribution
+// 		weights[i]=1.0/mu;
+// // 		weightSum+=weights[i]*weights[i];
+// 	}
+// 	muEff=1.0/weightSum;
+// 	cSigma= (muEff+2.0)/(N+muEff+3.0);
+// 	dSigma= 1.0+ 2.0*( std::max(0.0, sqrt( (muEff-1.0)/(N+1.0) )-1.0 )) +cSigma;
+// 	cc= 4.0/(N+4.0);
+ 	muCov=muEff=mu;
+//  	cCov=((1.0/muCov)*(2.0/( (N+sqrt(2.0))*(N+sqrt(2.0)) )))+((1.0- (1.0/muCov))*std::min(1.0, ((2.0*muEff)-1.0)/( ((N+2.0)*(N+2.0))+muEff )  )); //original paper
+	cCov=2.0/ ((N+sqrt(2.0))*(N+sqrt(2.0)));
+	
+ 	chiN = sqrt((double) N) * (1.0 - 1.0/(4.0*N) + 1.0/(21.0*N*N));
+	cc=cSigma=4.0/(N+4.0);
+	dSigma=1.0+(1.0/cSigma);
+
+	/***************setting default parameters ****************/
+	if(sw.init){
+		for (int i = 0; i < N; ++i){  //avoid memory garbage
+			for (int j = 0; j < N; j++)
+				sw.B[i][j]=0.0;										//need to keep
+				sw.B[i][i]=1.0;										//need to keep
+				initialStds[i] = 0.3;									//does not change
+				trace += initialStds[i]*initialStds[i];						//does not change
+		}
+		
+		//0.3=original code // 0.5=original paper
+		sw.sigma=0.5;											//need to keep
+		for (int i = 0; i < N; ++i){  //avoid memory garbage
+			for (int j = 0; j < N; j++)
+				sw.C[i][j]=0.0;								//need to keep
+				sw.pC[i] = sw.pSigma[i] = 0.0;						//need to keep
+				sw.mean[i]=0.5;									//need to keep
+				// 			sw.mean[i]=normalize(sw.centroid[i], inferiorPositionLimit[i], superiorPositionLimit[i]);
+		}
+		for (int i = 0; i < N; ++i) {
+			sw.C[i][i] = sw.D[i] = initialStds[i] * sqrt(N / trace);	//need to keep
+			sw.C[i][i] *= sw.C[i][i];							//need to keep
+		}
+		sw.gen=0;
+		sw.init=false;
+		if(logCMAES)
+			printf("\n INIT \n");
+	}else
+		sw.gen++;
+	//exit(1);
+	
+	//******************************************//
+	
+	for (int i = 0; i < N; ++i) {
+		oldMean[i]=sw.mean[i];
+		sw.mean[i]=0;
+		for(int j=0;j<mu;++j) // eq 1
+			//sw.mean[i]+=weights[j]*sw.repository.getSolution(j).decisionVector[i];
+			//sw.mean[i]+=weights[j]*normalize(sw.repository.getSolution(j).decisionVector[i], inferiorPositionLimit[i], superiorPositionLimit[i]);
+			//sw.mean[i]+=weights[j]*nonDominated[j][i];
+			sw.mean[i]+=(1.0/mu)*nonDominated[j][i];
+			
+		BDz[i] = sqrt(mu)*(sw.mean[i] - oldMean[i])/sw.sigma; // sqrt(u)/sigma * (avg - avgOld ) == sqrt(u)*BDz
+		
+	}
+	
+	for (int i = 0; i < N; ++i) // pc update
+		sw.pC[i] = (1.0 - cc) * sw.pC[i] + sqrt(cc * (2.0 - cc)) * BDz[i];
+	
+	double sum, tmp[N], psxps=0.0;
+	for (int i = 0; i < N; i++) {
+		sum=0;
+		for (int j = 0; j < N; ++j)
+			sum += sw.B[j][i] * BDz[j]; //B*BDz
+		tmp[i] = sum / sw.D[i]; //*-1
+	}
+	
+	for (int i = 0; i < N; i++) {
+		sum=0;
+		for (int j = 0; j < N; ++j)
+			sum += sw.B[i][j] * tmp[j]; //B* B^-1 D^-1 z
+			
+			double ant=sw.pSigma[i];
+		sw.pSigma[i] = (1.0 - cSigma) * sw.pSigma[i] + sqrt(cSigma * (2.0 - cSigma)) * sum;
+
+		if(logCMAES)
+			printf("\npSigma[%d] %f = (1.0 - %f) * %f[%d] + sqrt(%f * (2.0 - %f)) * %f", i, sw.pSigma[i], cSigma, ant, i, cSigma, cSigma, sum);
+		
+		/* calculate norm(ps)^2 */
+		psxps += sw.pSigma[i] * sw.pSigma[i];
+	}
+	
+
+	
+// 	//************  Adapt_C2  *********// Update covariance matrix
+// 	double ccov1 = std::min(cCov * (1.0/muCov) * 1.0, 1.0);
+// 	double ccovmu = std::min(cCov * (1-1.0/muCov)* 1.0, 1.0-ccov1); 
+// 	double sigmasquare = sw.sigma * sw.sigma; 
+// 	/* update covariance matrix */
+// 	for (int i = 0; i < N; ++i)
+// 		for (int j = 0; j <= i; ++j) {
+// 			sw.C[i][j] = (1 - ccov1 - ccovmu) * sw.C[i][j] + ccov1* (sw.pC[i] * sw.pC[j] + cc*(2.0-cc) * sw.C[i][j]);
+// 			for (int k = 0; k < mu; ++k) { /* additional rank mu update */
+// 				//sw.C[i][j] += ccovmu * weights[k]* (sw.repository.getSolution(k).decisionVector[i] - oldMean[i]) * (sw.repository.getSolution(k).decisionVector[j] - oldMean[j])/ sigmasquare;
+// 				sw.C[i][j] += ccovmu * weights[k]* (normalize(sw.repository.getSolution(k).decisionVector[i], inferiorPositionLimit[i], superiorPositionLimit[i]) - oldMean[i]) * (normalize(sw.repository.getSolution(k).decisionVector[j], inferiorPositionLimit[j], superiorPositionLimit[j]) - oldMean[j])/ sigmasquare;
+// 			}
+// 		}
+// 		//**************************************//
+
+	//************  Adapt_C2  *********// Update covariance matrix
+	double aCov=1.0/mu;
+	/* update covariance matrix */
+	
+	double Z[N][N];
+	for (int i = 0; i < N; ++i)
+		for (int j = 0; j < N; ++j)
+			Z[i][j]=0.0;
+	
+	
+	for (int i = 0; i < N; ++i){
+		for (int j = 0; j <= i; ++j) {
+			for (int k = 0; k < mu; ++k) { /* additional rank mu update */
+				//sw.C[i][j] += ccovmu * weights[k]* (sw.repository.getSolution(k).decisionVector[i] - oldMean[i]) * (sw.repository.getSolution(k).decisionVector[j] - oldMean[j])/ sigmasquare;
+				//Z[i][j] += weights[k]* (normalize(sw.repository.getSolution(k).decisionVector[i], inferiorPositionLimit[i], superiorPositionLimit[i]) - oldMean[i]) * (normalize(sw.repository.getSolution(k).decisionVector[j], inferiorPositionLimit[j], superiorPositionLimit[j]) - oldMean[j])/ (sw.sigma*sw.sigma);
+// 				Z[i][j] += ( weights[k] * (nonDominated[k][i] - oldMean[i]) * (nonDominated[k][j] - oldMean[j]) ) / (sw.sigma*sw.sigma); //unmodified by active paper
+				Z[i][j] += (1.0/mu)*( (nonDominated[k][i] - oldMean[i]) * (nonDominated[k][j] - oldMean[j]) ); //modified by active paper
+			}
+			for (int k = 0; k < dom; ++k) { /* negative (active) update */
+				Z[i][j] -= (1.0/dom)*( (dominated[k][i] - oldMean[i]) * (dominated[k][j] - oldMean[j]) ); //modified by active paper
+			}
+			
+			Z[i][j]/=(sw.sigma*sw.sigma);
+		}
+// 		printVector(Z[i],N);
+// 		printf("\n");
+	}
+	
+	double beta=(4.0*mu-2.0)/( ((N+12.0)*(N+12.0)) + 4.0*mu );
+	
+	for (int i = 0; i < N; ++i)
+		for (int j = 0; j <= i; ++j) {
+// 			sw.C[i][j] = (1 - cCov) * sw.C[i][j] + cCov * (aCov * sw.pC[i] * sw.pC[j] + (1-aCov) ) * Z[i][j]; //unmodified by active paper
+			sw.C[i][j] = (1 - cCov) * sw.C[i][j] + cCov * (sw.pC[i] * sw.pC[j]) * beta * Z[i][j]; //modified by active paper
+		}
+	//**************************************//
+
+		
+		/* update of sigma */
+		sw.sigma *= exp( (sqrt(psxps)-chiN)/dSigma*chiN ); //paper activeLearn
+// 		sw.sigma *= exp ( (cSigma/dSigma) * ((sqrt(psxps)/chiN)-1.0) ); // original paper
+		
+		
+		
+		// 	//CHECK THIS LATER
+		// 	if(sw.sigma > 200){
+		// 		printf("\nescape excessive sigma: %f -> ", sw.sigma);
+		// // 		sw.sigma = 200;// * exp(0.2+cSigma/dSigma);
+		// // 		sw.sigma =1;
+		// 		printf("%f \n", sw.sigma);
+		// 		
+		// 	}
+		// 	// CHECK THIS LATER
+		
+		if(logCMAES){
+			printf("\n\nmueff %f, cSigma %f, dSigma %f, ccumcov %f, ccov %f, sigma %f", muEff, cSigma, dSigma, cc, cCov, sw.sigma);
+			printf("\nhsig %d, psxps %f, chiN %f, gen %d \n", hsig, psxps, chiN, sw.gen);
+			// 	printf("\n\nweights - solSize: %d : ", mu);
+			// 	printVector(weights, mu);
+			printf("\navg :     ");
+			printVector(sw.mean, N);
+			printf("\navg_old : ");
+			printVector(oldMean, N);
+			
+			printf("\n\nD mat:");
+			printVector(sw.D, N);
+			printf("\nBDz: ");
+			printVector(BDz, N);
+			printf("\ntmp : ");
+			printVector(tmp, N);
+			printf("\nps : ");
+			printVector(sw.pSigma, N);
+			printf("\npc : ");
+			printVector(sw.pC, N);
+		}
+		// 		t->rgBDz[i] = sqrt(t->sp.mueff)*(t->rgxmean[i] - t->rgxold[i])/t->sigma; 
+		
+		// 	printf("\n\nrgD (new): ");
+		// 	printVector(D, N);
+		// 	printf("\n\nB (new): \n");
+		// 	for (int i = 0; i < N; ++i){
+		// 		printVector(B[i], N);
+		// 		printf("\n");
+		// 	}
+		// 	printf("\n\nCov mat: \n");
+		// 	for (int i = 0; i < N; ++i){
+		// 		printVector(sw.C[i], N);
+		// 		printf("\n");
+		// 	}
+}
+
+void activeLearn2(Swarm &sw){
+	int solSize=sw.repository.getActualSize();
+	int N=decisionNumber, hsig;
+	double oldMean[N], initialStds[N], BDz[N];
+	double muEff, cSigma, dSigma, cc, muCov, cCov, trace=0.0, chiN;
+	//double sigma, C[N][N], pC[N], pSigma[N], D[N], mean[N], B[N][N];
+	
+	//normalizing dominated and non dominated solutions
+	double dominated[sw.swarmSize][N], nonDominated[sw.swarmSize][N];
+	int dom=0, nonDom=0;
+	
+// // 	separate the dominated and non dominated
+	for(int i=0;i<sw.swarmSize;i++){
+		if(sw.particles[i].solution.dominated){
+			for(int j=0;j<N;j++)
+				dominated[dom][j]=normalize(sw.particles[i].solution.decisionVector[j], inferiorPositionLimit[j], superiorPositionLimit[j]);
+			dom++;
+		}
+		else{
+			for(int j=0;j<N;j++)
+				nonDominated[nonDom][j]=normalize(sw.particles[i].solution.decisionVector[j], inferiorPositionLimit[j], superiorPositionLimit[j]);
+			nonDom++; //mu
+		}
+	}
+	
+// 	//learn from the entire population - very bad results
+// 	for(int i=0;i<sw.swarmSize;i++){
+// 		for(int j=0;j<N;j++)
+// 			nonDominated[nonDom][j]=normalize(sw.particles[i].solution.decisionVector[j], inferiorPositionLimit[j], superiorPositionLimit[j]);
+// 		nonDom++; //mu
+// 	}
+	
+	
+	//in case there is no non-dominated solution in this generation, learn the matrix from the repository
+	if(nonDom == 0){
+		for(int i=0;i<sw.repository.getActualSize();i++){
+			for(int j=0;j<N;j++)
+				nonDominated[nonDom][j]=normalize(sw.repository.getSolution(i).decisionVector[j], inferiorPositionLimit[j], superiorPositionLimit[j]);
+			nonDom++; //mu
+		}
+	}
+	double mu = nonDom;
+	
+	/***************setting default parameters according to****************/
+	//https://www.lri.fr/~hansen/hansenedacomparing.pdf
+	// in my strategy lambda = mu = solSize
+
+	muEff=mu;
+	// 	cSigma= (muEff+2.0)/(N+muEff+3.0); //code
+	cSigma= (muEff+2.0)/(N+muEff+5.0); //paper
+	dSigma= 1.0+ 2.0*( std::max(0.0, sqrt( (muEff-1.0)/(N+1.0) )-1.0 )) +cSigma;
+	// 	cc= 4.0/(N+4.0); //code
+	cc= (4.0+(muEff/N))/ (N+4.0+(2.0*muEff/N)); //paper
+	
+	muCov=muEff;
+	cCov=((1.0/muCov)*(2.0/( (N+sqrt(2.0))*(N+sqrt(2.0)) )))+((1.0- (1.0/muCov))*std::min(1.0, ((2.0*muEff)-1.0)/( ((N+2.0)*(N+2.0))+muEff )  ));
+	chiN = sqrt((double) N) * (1.0 - 1.0/(4.0*N) + 1./(21.0*N*N));
+	/***************setting default parameters ****************/
+	if(sw.init){
+		for (int i = 0; i < N; ++i){  //avoid memory garbage
+			for (int j = 0; j < N; j++)
+				sw.B[i][j]=0.0;										//need to keep
+				sw.B[i][i]=1.0;										//need to keep
+				initialStds[i] = 0.3;									//does not change
+				trace += initialStds[i]*initialStds[i];						//does not change
+		}
+		
+		//0.3=original code // 0.5=original paper
+		sw.sigma=0.5;											//need to keep
+		for (int i = 0; i < N; ++i){  //avoid memory garbage
+			for (int j = 0; j < N; j++)
+				sw.C[i][j]=0.0;								//need to keep
+				sw.pC[i] = sw.pSigma[i] = 0.0;						//need to keep
+				sw.mean[i]=0.5;									//need to keep
+				// 			sw.mean[i]=normalize(sw.centroid[i], inferiorPositionLimit[i], superiorPositionLimit[i]);
+		}
+		for (int i = 0; i < N; ++i) {
+			sw.C[i][i] = sw.D[i] = initialStds[i] * sqrt(N / trace);	//need to keep
+			sw.C[i][i] *= sw.C[i][i];							//need to keep
+		}
+		sw.gen=0;
+		sw.init=false;
+		if(logCMAES)
+			printf("\n INIT \n");
+	}else
+		sw.gen++;
+	//exit(1);
+	
+	//******************************************//
+	
+	for (int i = 0; i < N; ++i) {
+		oldMean[i]=sw.mean[i];
+		sw.mean[i]=0;
+		for(int j=0;j<mu;++j)
+			//sw.mean[i]+=weights[j]*sw.repository.getSolution(j).decisionVector[i];
+// 			sw.mean[i]+=(1.0/mu)*normalize(sw.repository.getSolution(j).decisionVector[i], inferiorPositionLimit[i], superiorPositionLimit[i]);
+			sw.mean[i]+=(1.0/mu)*nonDominated[j][i];
+		BDz[i] = sqrt(muEff)*(sw.mean[i] - oldMean[i])/sw.sigma; //z
+	}
+	
+	double sum, tmp[N], psxps=0.0;
+	for (int i = 0; i < N; i++) {
+		sum=0;
+		for (int j = 0; j < N; ++j)
+			sum += sw.B[j][i] * BDz[j]; //Bz
+			tmp[i] = sum / sw.D[i]; //BDz
+	}
+	
+	for (int i = 0; i < N; i++) {
+		sum=0;
+		for (int j = 0; j < N; ++j)
+			sum += sw.B[i][j] * tmp[j]; //B D^-1 B'
+			
+			double ant=sw.pSigma[i];
+		sw.pSigma[i] = (1.0 - cSigma) * sw.pSigma[i] + sqrt(cSigma * (2.0 - cSigma)) * sum;
+		
+		//printf("\npSigma[%d]=%f*%f+%f*%f\n",i,(1.0-cSigma),ant,sqrt(cSigma * (2.0 - cSigma)),sum);
+		
+		if(logCMAES)
+			printf("\npSigma[%d] %f = (1.0 - %f) * %f[%d] + sqrt(%f * (2.0 - %f)) * %f", i, sw.pSigma[i], cSigma, ant, i, cSigma, cSigma, sum);
+		
+		/* calculate norm(ps)^2 */
+		psxps += sw.pSigma[i] * sw.pSigma[i];
+	}
+	
+	/* cumulation for covariance matrix (pc) using B*D*z~N(0,C) */
+	hsig = sqrt(psxps) / sqrt(1.0 - pow(1.0-cSigma, 2*sw.gen)) / chiN < 1.4 + 2.0/(N+1);
+	
+	for (int i = 0; i < N; ++i)
+		sw.pC[i] = (1.0 - cc) * sw.pC[i] + hsig * sqrt(cc * (2.0 - cc)) * BDz[i];
+	
+	//************  Adapt_C2  *********// Update covariance matrix
+	// 	double ccov1 = std::min(cCov * (1.0/muCov) * 1.0, 1.0); //code
+	double ccov1 = 2.0/(((N+1.3)*(N+1.3))+muEff); //paper
+	// 	double ccovmu = std::min(cCov * (1-1.0/muCov)* 1.0, 1.0-ccov1); //code
+	double ccovmu = std::min(1.0-ccov1, 2 * ( ( (muEff-2.0)+(1.0/muEff) )/( (N+2.0)*(N+2.0) + (2.0*muEff)/2.0 ) )); //paper
+	
+	double beta=(4.0*mu-2.0)/( ((N+12.0)*(N+12.0)) + 4.0*mu );
+	
+	double sigmasquare = sw.sigma * sw.sigma; 
+	/* update covariance matrix */
+	for (int i = 0; i < N; ++i){
+		for (int j = 0; j <= i; ++j) {
+			sw.C[i][j] = (1 - ccov1 - ccovmu) * sw.C[i][j] + ccov1* (sw.pC[i] * sw.pC[j] + (1-hsig)*cc*(2.0-cc) * sw.C[i][j]);
+			for (int k = 0; k < mu; ++k) { /* additional rank mu update */
+				//sw.C[i][j] += ccovmu * weights[k]* (sw.repository.getSolution(k).decisionVector[i] - oldMean[i]) * (sw.repository.getSolution(k).decisionVector[j] - oldMean[j])/ sigmasquare;
+				//sw.C[i][j] += ccovmu * (1.0/mu)* (normalize(sw.repository.getSolution(k).decisionVector[i], inferiorPositionLimit[i], superiorPositionLimit[i]) - oldMean[i]) * (normalize(sw.repository.getSolution(k).decisionVector[j], inferiorPositionLimit[j], superiorPositionLimit[j]) - oldMean[j])/ sigmasquare;
+				sw.C[i][j] += ccovmu * (1.0/mu)* (nonDominated[k][i] - oldMean[i]) * (nonDominated[k][j] - oldMean[j])/ sigmasquare;
+// 				sw.C[i][j] += ccovmu * ( (1.0/mu)* (nonDominated[k][i] - oldMean[i]) * (nonDominated[k][j] - oldMean[j]) - (1.0/dom)* (dominated[k][i] - oldMean[i]) * (dominated[k][j] - oldMean[j]) ) / sigmasquare;
+			}
+			for (int k = 0; k < dom; ++k) { /* additional rank mu update */
+				sw.C[i][j] -= ccovmu *  (1.0/dom)* (dominated[k][i] - oldMean[i]) * (dominated[k][j] - oldMean[j]) / sigmasquare;
+			}
+		}
+	}
+	
+	
+// 	double x[N][N];
+// 	printf("\n\nmatrix update positive \n");
+// 	for (int i = 0; i < N; ++i){
+// 		for (int j = 0; j <= i; ++j) {
+// 			x[i][j]=0;
+// 			for (int k = 0; k < mu; ++k) { /* additional rank mu update */
+// 				x[i][j]+= beta*ccovmu * (1.0/mu)* (nonDominated[k][i] - oldMean[i]) * (nonDominated[k][j] - oldMean[j])/ sigmasquare;
+// 			}
+// 			printf("%f ", x[i][j]);
+// 		}
+// 		printf("\n");
+// 	}
+// 	
+// 	printf("\nmatrix update negative \n");
+// 	for (int i = 0; i < N; ++i){
+// 		for (int j = 0; j <= i; ++j) {
+// 			x[i][j]=0;
+// 			for (int k = 0; k < dom; ++k) { /* additional rank mu update */
+// 				x[i][j] -= beta*ccovmu *  (1.0/dom)* (dominated[k][i] - oldMean[i]) * (dominated[k][j] - oldMean[j]) / sigmasquare;
+// 			}
+// 			printf("%f ", x[i][j]);
+// 		}
+// 		printf("\n");
+// 	}
+// 	printf("\nmatrix update final \n");
+// 	for (int i = 0; i < N; ++i){
+// 		for (int j = 0; j <= i; ++j) {
+// 			x[i][j]=0;
+// 			for (int k = 0; k < mu; ++k) { /* additional rank mu update */
+// 				x[i][j]+= beta*ccovmu * (1.0/mu)* (nonDominated[k][i] - oldMean[i]) * (nonDominated[k][j] - oldMean[j])/ sigmasquare;
+// 			}
+// 			for (int k = 0; k < dom; ++k) { /* additional rank mu update */
+// 				x[i][j] -= beta*ccovmu *  (1.0/dom)* (dominated[k][i] - oldMean[i]) * (dominated[k][j] - oldMean[j]) / sigmasquare;
+// 			}
+// 			printf("%f ", x[i][j]);
+// 		}
+// 		printf("\n");
+// 	}
+// 	
+// 	printf("\navg :     ");
+// 	printVector(sw.mean, N);
+// 	printf("\navg_old : ");
+// 	printVector(oldMean, N);
+	
+	
+	
+		//**************************************//
+		
+		/* update of sigma */
+		sw.sigma *= exp(((sqrt(psxps)/chiN)-1.0)*cSigma/dSigma);
+		
+		if(logCMAES){
+			printf("\n\nmueff %f, cSigma %f, dSigma %f, ccumcov %f, ccov %f, sigma %f", muEff, cSigma, dSigma, cc, cCov, sw.sigma);
+			printf("\nhsig %d, psxps %f, chiN %f, gen %d \n", hsig, psxps, chiN, sw.gen);
+			// 	printf("\n\nweights - solSize: %d : ", solSize);
+			// 	printVector(weights, solSize);
+			printf("\navg :     ");
+			printVector(sw.mean, N);
+			printf("\navg_old : ");
+			printVector(oldMean, N);
+			
+			printf("\n\nD mat:");
+			printVector(sw.D, N);
+			printf("\nBDz: ");
+			printVector(BDz, N);
+			printf("\ntmp : ");
+			printVector(tmp, N);
+			printf("\nps : ");
+			printVector(sw.pSigma, N);
+			printf("\npc : ");
+			printVector(sw.pC, N);
+		}
+
+}

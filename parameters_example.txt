@@ -1,0 +1,46 @@
+%Output file name
+outName=test
+%problem: problem name
+problem=dtlz3
+%leader selection strategy (rnd, cd, sigma, nwsum)
+leader=cd
+%archiver strategy (rnd, cd, ideal, mga, r2, hv)
+archiver=mga
+%number of objectives
+objectiveNumber=3
+%number of particles on single swarm
+population=100
+%repository size per swarm
+repository=200
+%swarm Number
+swarms=40
+%number of iterations
+iterations=200
+%number of independent runs
+runs=1
+%Which algorithm is to be run (smpso, hmopso, imulti, cmulti, cmaes-mopso)
+algorithm=cmulti
+%number of partitioning iterations //original = 5
+partIterations=5
+%archiving method used by the sub-swarms (rnd, cd, ideal, mga, r2) -- if decomposition (pbi, tch, wcp, wsum, r-ideal) -- if cmaes (larger-likelihood, smaller-likelihood, larger-distance, smaller-distance)
+archSubSwarms=cd
+%total population used considering all the sub swarms in the multi-swarm phase
+subSwarmTotalPopulation=750
+%number of diversity iterations -- the single swarm iterations used to form the basis front to be split
+diversityIterations=100
+%clustering method used in the K-means of i-multi and c-multi (decision, objectives, both)
+clusteringType=decision
+%truncation method used in the i-multi and c-multi truncation (imulti, rdmInSwarm, extremes, random)
+truncType=extremes
+%distance type used in the k-means clustering of i-multi and c-multi (euclidean, tchebycheff, minkowski0.5, minkowski4)
+clusteringDistance=euclidean
+%type of weight distribution used in the CMA-ES algorithm (equal, log, linear, metric) %not applicable to c-multi
+weightDistribution=log
+%non-dominated solution set to be used in the CMA-ES learning (repository, population, both) %not applicable to c-multi
+solSet=both
+%ranking method used in the CMA-ES learning (cd, hv, r2) %not applicable to c-multi
+cmaRanking=cd
+%size of the neighborhood for MOEA/D - minimum 1, 0=dynamic(distance based) %not applicable to c-multi
+neighborhoodSize=20
+%metric used to update the neighborhood at each iteraion (1-5 chooses strategy, other values does nothing) %not applicable to c-multi
+updateNeighborhoodMetric=0
